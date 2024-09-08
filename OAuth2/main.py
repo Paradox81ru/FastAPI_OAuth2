@@ -11,15 +11,15 @@ from fastapi.security import (
 )
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
+from config import get_settings
+from schemas import Token, TokenData, User, UserInDB
+from db.database import Base, engine
+from db import models
 import uvicorn
 
-SECRET_KEY = "11dcfbb19316b6104037b2ec8d6d0179b89f55a93da4594e4971d96df5feae21"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-MYSQL_CONNECT_STR = "mysql+pymysql://aborigen:shuXRz4hFeeAEsCU@localhost/sqlalchemy_core"
-SQLITE_CONNECT_STR = 'sqlite:///db.sqlite3'
+settings = get_settings()
 
 
 fake_users_db = {
@@ -40,32 +40,13 @@ fake_users_db = {
 }
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
-    scopes: list[str] = []
-
-
-class User(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    disable: bool | None = None
-
-
-class UserInDB(User):
-    hashed_password : str
-
-
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='token',
     scopes={"me": "Read information about the current user.", "items": "Read items."}
 )
+
+models.Base.metadata.create_all(engine)
 
 app = FastAPI()
 
@@ -98,15 +79,15 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     expire = datetime.now(timezone.utc) \
         + (expires_delta if expires_delta is not None else timedelta(minutes=15))
     to_encode.update({'exp': expire})
-    encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encode_jwt = jwt.encode(to_encode, settings.secret_key.get_secret_value(), algorithm=settings.algorithm)
     return encode_jwt
 
 
 async def get_current_user(security_scopes: SecurityScopes, token: Annotated[str, Depends(oauth2_scheme)]):
-    authenticate_value = 'Bearer scope="{security_scopes.scope_str}"' \
+    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' \
         if security_scopes.scopes else "Bearer"
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=[settings.algorithm])
         username: str = payload.get('sub')
         if username is None:
             raise AuthenticateException("Could not validate credentials", authenticate_value)
@@ -134,7 +115,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    access_token_expire = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expire = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
         data={'sub': user.username, 'scopes': form_data.scopes},
         expires_delta=access_token_expire
