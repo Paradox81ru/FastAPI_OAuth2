@@ -13,3 +13,8 @@ def add_users(db: Session, users: list[UserModel]):
     with db:
         db.add_all(users)
         db.commit()
+
+def get_user_by_username(db: Session,  username) -> UserModel:
+    """ Возвраащет пользовтеля по имени """
+    with db:
+        return db.query(UserModel).filter(UserModel.username == username).first()

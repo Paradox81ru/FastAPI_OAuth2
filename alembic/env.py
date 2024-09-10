@@ -8,9 +8,6 @@ from alembic import context
 from OAuth2.db import models
 from OAuth2.config import get_settings
 
-import sys
-import os
-
 settings = get_settings()
 
 # this is the Alembic Config object, which provides
