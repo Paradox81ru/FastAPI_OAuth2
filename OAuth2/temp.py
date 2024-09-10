@@ -21,6 +21,8 @@ class UerStatus(MyEnum):
 
 
 def main():
+    print(UerStatus.DELETED)
+    print(UerStatus.DELETED.value)
     print(UerStatus.get_items())
 
 

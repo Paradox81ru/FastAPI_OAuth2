@@ -12,10 +12,11 @@ from fastapi.security import (
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import ValidationError
-from config import get_settings
-from schemas import Token, TokenData, User, UserInDB
-from db.database import Base, engine
-from db import models
+from OAuth2.config import pwd_context
+from OAuth2.config import get_settings
+from OAuth2.schemas import Token, TokenData, User, UserInDB
+from OAuth2.db.db_connection import engine
+from OAuth2.db import models
 import uvicorn
 
 
@@ -40,7 +41,6 @@ fake_users_db = {
 }
 
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='token',
     scopes={"me": "Read information about the current user.", "items": "Read items."}
