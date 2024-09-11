@@ -1,7 +1,7 @@
 import os
 os.environ['IS_TEST'] = 'True'
 
-from OAuth2.db.db_connection import session as db_session
+from OAuth2.db.db_connection import db_session as session
 import alembic.config
 import alembic.environment
 
@@ -21,6 +21,6 @@ def setup():
     yield
    
 @pytest.fixture()
-def session():
-    yield db_session
-    db_session.close()
+def db_session():
+    yield session
+    session.close()

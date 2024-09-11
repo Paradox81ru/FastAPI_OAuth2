@@ -15,7 +15,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(60), nullable=False)
-    password_hash: Mapped[str] = mapped_column(nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(60), nullable=False)
     first_name: Mapped[str | None] = mapped_column(String(60), default="")
     last_name: Mapped[str | None] = mapped_column(String(60), default="")
     email: Mapped[str] = mapped_column(String(254))
@@ -28,14 +28,6 @@ class User(Base):
 
     def set_password(self, password: str):
         self.password_hash = pwd_context.hash(password)
-
-    def check_password(self, password: str):
-        return pwd_context.verify(self.password_hash, password)
-    
-    def __repr__(self):
-        return f"User(id={self.id}, username={self.username}, first_name={self.first_name}, last_name={self.last_name}," \
-               f"email={self.email}, status={self.status}, role={self.role}, date_joined={self.date_joined}," \
-               f"last_logind={self.last_login})"
 
 
 class UserBuilder:
@@ -62,4 +54,5 @@ class UserBuilder:
         if self._user.role is None:
             self.role(UserRoles.visitor)
         self._user.status = UerStatus.ACTIVE
+        self._user.date_joined = datetime.now()
         return self._user

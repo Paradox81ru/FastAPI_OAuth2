@@ -1,5 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, SecretStr
 from enum import IntEnum
+from datetime import datetime
+from OAuth2.config import pwd_context
 
 class MyEnum(IntEnum):
     @classmethod
@@ -44,12 +46,33 @@ class TokenData(BaseModel):
     scopes: list[str] = []
 
 
-class User(BaseModel):
+class BaseUser(BaseModel):
     username: str
-    email: str | None = None
-    full_name: str | None = None
-    disable: bool | None = None
+    role: UserRoles
+    status: UerStatus
+
+    model_config = ConfigDict(from_attributes=True)
+
+    def __repr__(self) -> str:
+        attrs = tuple(f"{field}={f'\'{value}\'' if isinstance(value, str) else value}" for field, value in self.model_dump().items())
+        return f"{self.__class__.__name__}({', '.join(attrs)})"
+
+class AnonymUser(BaseUser):
+    username: str = 'Anonym'
+    role: UserRoles = UserRoles.visitor
+    status: UerStatus = UerStatus.ACTIVE
+
+class User(BaseUser):
+    email: str | None
+    first_name: str | None = None
+    last_name: str | None = None
+    date_joined: datetime
+    last_login: datetime | None = None
 
 
 class UserInDB(User):
-    hashed_password : str
+    password_hash: SecretStr
+
+    def check_password(self, password: str):
+        _check =  pwd_context.verify(password, self.password_hash.get_secret_value())
+        return pwd_context.verify(password, self.password_hash.get_secret_value())
