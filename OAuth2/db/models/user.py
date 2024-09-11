@@ -1,12 +1,12 @@
 from datetime import datetime
 from OAuth2.db.models import Base
-from sqlalchemy import func
 from sqlalchemy import String, SMALLINT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
 from OAuth2.config import pwd_context
 from OAuth2.schemas import UserRoles, UerStatus
 from OAuth2.db.db_types import MyDateTime
+# from OAuth2.db.models import JWTToken
 
 
 class User(Base):
@@ -23,6 +23,8 @@ class User(Base):
     role: Mapped[UserRoles] = mapped_column(SMALLINT)
     date_joined: Mapped[datetime] = mapped_column(MyDateTime, default=datetime.now)
     last_login: Mapped[datetime | None] = mapped_column(MyDateTime)
+    jwt_tokens: Mapped[list['JWTToken']] = relationship(back_populates='subject')
+
 
     def set_password(self, password: str):
         self.password_hash = pwd_context.hash(password)
