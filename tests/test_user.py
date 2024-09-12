@@ -67,8 +67,14 @@ def test_set_password(db_session: Session):
     user_schema = schemas.UserInDB(**user_model.to_dict())
     assert user_schema.check_password(password)
 
-    password = 'Cucmber_123'
+    password = 'Cucumber_123'
     paradox = crud.get_user_schema_by_username(db_session, 'Paradox')
     assert paradox.check_password(password)
-    password = 'cucmber_123'
+    password = 'cucumber_123'
     assert not paradox.check_password(password)
+
+
+def test_convert_userdb_to_user(db_session: Session):
+    paradox_in_db = crud.get_user_schema_by_username(db_session, 'Paradox')
+    paradox = paradox_in_db.to_user()
+    assert isinstance(paradox, schemas.User)

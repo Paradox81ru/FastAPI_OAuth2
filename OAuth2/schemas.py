@@ -5,6 +5,13 @@ from OAuth2.config import pwd_context
 
 class MyEnum(IntEnum):
     @classmethod
+    def get_name_for_value(cls, value):
+        try:
+            return [item.name for item in cls if item.value == value][0]
+        except IndexError:
+            return None
+
+    @classmethod
     def get_names(cls):
         return tuple(val.name for val in cls)
 
@@ -41,9 +48,9 @@ class Token(BaseModel):
     token_type: str
 
 
-class TokenData(BaseModel):
-    username: str | None = None
-    scopes: list[str] = []
+# class TokenData(BaseModel):
+#     username: str | None = None
+#     scopes: list[str] = []
 
 
 class BaseUser(BaseModel):
@@ -52,6 +59,10 @@ class BaseUser(BaseModel):
     status: UerStatus
 
     model_config = ConfigDict(from_attributes=True)
+
+    def get_role(self):
+        """ Возвращает название роли """
+        return UserRoles.get_name_for_value(self.role)
 
     def __repr__(self) -> str:
         attrs = tuple(f"{field}={f'\'{value}\'' if isinstance(value, str) else value}" for field, value in self.model_dump().items())
@@ -76,3 +87,6 @@ class UserInDB(User):
     def check_password(self, password: str):
         _check =  pwd_context.verify(password, self.password_hash.get_secret_value())
         return pwd_context.verify(password, self.password_hash.get_secret_value())
+    
+    def to_user(self):
+        return User(**self.model_dump())

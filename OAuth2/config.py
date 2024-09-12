@@ -1,3 +1,4 @@
+from fastapi.security import OAuth2PasswordBearer
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 from dotenv import load_dotenv
@@ -6,6 +7,12 @@ from pydantic import SecretStr
 import os
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+oauth2_scheme = OAuth2PasswordBearer(
+    auto_error=False,
+    tokenUrl='/api/oauth/token',
+    scopes={"me": "Read information about the current user.", "items": "Read items."}
+)
 
 class Settings(BaseSettings):
     secret_key: SecretStr = "15d29aad37ecf71a6094bf2552232839a9df526f968d3c49e6885883892dca01"

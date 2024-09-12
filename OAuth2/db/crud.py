@@ -16,11 +16,13 @@ def add_users(db: Session, users: list[models.User]):
 
 
 def get_user_by_username(db: Session,  username) -> models.User:
-    """ Возвраащет пользовтеля по имени """
+    """ Возвраащет пользовтеля по логину """
     return db.query(models.User).filter(models.User.username == username).first()
 
 
-def get_user_schema_by_username(db: Session,  username) -> schemas.AnonymUser | schemas.UserInDB:
-    """ Возвращает найденного по имении полтзователя, или AnonymUser, если такой пользователь не был найден """
+def get_user_schema_by_username(db: Session,  username) -> schemas.UserInDB | None:
+    """ Возвращает найденного по логину пользователя"""
+    # user = get_user_by_username(db, username)
+    # return schemas.UserInDB(**user.to_dict()) if user is not None else schemas.AnonymUser()
     user = get_user_by_username(db, username)
-    return schemas.UserInDB(**user.to_dict()) if user is not None else schemas.AnonymUser()
+    return schemas.UserInDB(**user.to_dict()) if user is not None else None
