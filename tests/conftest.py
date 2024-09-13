@@ -1,6 +1,9 @@
 import os
 os.environ['IS_TEST'] = 'True'
 
+from fastapi.testclient import TestClient
+from main import app
+from OAuth2.config import get_settings
 from OAuth2.db.db_connection import db_session as session
 import alembic.config
 import alembic.environment
@@ -20,7 +23,18 @@ def setup():
     alembic.command.upgrade(alembic_cfg, 'head')
     yield
    
+   
 @pytest.fixture()
 def db_session():
     yield session
     session.close()
+
+
+@pytest.fixture()
+def client():
+    return TestClient(app)
+
+
+@pytest.fixture()
+def api_settings():
+    return get_settings()

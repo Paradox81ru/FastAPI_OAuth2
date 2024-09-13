@@ -24,11 +24,6 @@ def get_db_session():
             db_session.close()
 
 
-def check_role(allowed_roles: tuple[str, ...] | list[str]):
-    """ Проверяет рольпользователя """
-    def _check_role():
-        pass
-
 
 async def get_current_user(db_session: Annotated[Session, Depends(get_db_session)], security_scopes: SecurityScopes, 
                            token: Annotated[str, Depends(oauth2_scheme)]) -> AnonymUser | User:
@@ -54,3 +49,24 @@ async def get_current_user(db_session: Annotated[Session, Depends(get_db_session
         if scope not in token_scopes:
             raise AuthenticateException("Not enough permissions", authenticate_value)
     return user
+
+
+def check_role(allowed_roles: tuple[str, ...] | list[str]):
+    """ Проверяет роль пользователя """
+    def _check_role(user: Annotated[User, Depends(get_current_user)]):
+        if user.role in allowed_roles:
+            return True
+        raise AuthenticateException("Not enough permissions", "Bearer")
+    return _check_role
+
+
+def is_auth(user: Annotated[User, Depends(get_current_user)]):
+    """ Проверят на авторизованного пользователя """
+    if isinstance(user, AnonymUser):
+        raise AuthenticateException("Not authorized", "Bearer")
+
+
+def is_not_auth(user: Annotated[User, Depends(get_current_user)]):
+    """ Проверят на неавторизованного пользователя """
+    if isinstance(user, User):
+        raise AuthenticateException(f"Already authorized username '{user.username}' role {user.get_role()}", "Bearer")

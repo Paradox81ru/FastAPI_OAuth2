@@ -24,20 +24,6 @@ app = FastAPI()
 app.include_router(auth.router, prefix='/api')
 app.include_router(http_test.router, prefix='/api')
 
-# @app.get("/users/me/", response_model=User)
-# async def reader_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
-#     return current_user
-
-
-# @app.get("/users/me/items")
-# async def read_own_items(current_user: Annotated[User, Security(get_current_active_user, scopes=['items'])]):
-#     return  [{"item_id": "Foo", "owner": current_user.username}]
-
-
-# @app.get("/status/")
-# async def read_system_status(current_user: Annotated[User, Depends(get_current_user)]):
-#     return {"status": "ok"}
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

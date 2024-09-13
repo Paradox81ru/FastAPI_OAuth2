@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import Depends
 import jwt
 from OAuth2.config import get_settings
-from OAuth2.db.models.user import User, UserBuilder
+from OAuth2.db.models.user import UserBuilder
 from OAuth2.dependencies import get_db_session
 from OAuth2.schemas import UserRoles
 from OAuth2.db.crud import add_users, get_user_schema_by_username
@@ -15,11 +15,11 @@ settings = get_settings()
 
 def init_users(db: Session):
     """ Добавление пользователей при первой инициализации базы данных """
-    user_admin = UserBuilder('Admin', 'paradox81ru@yandex.ru').role(UserRoles.admin).set_password('Cucumber_123').build()
-    user_system = UserBuilder('System', 'paradox81ru@gmail.com').role(UserRoles.system).set_password('Cucumber_123').build()
+    user_admin = UserBuilder('Admin', 'paradox81ru@yandex.ru').role(UserRoles.admin).set_password(settings.init_admin_password.get_secret_value()).build()
+    user_system = UserBuilder('System', 'paradox81ru@gmail.com').role(UserRoles.system).set_password(settings.init_system_password.get_secret_value()).build()
     user_paradox = UserBuilder('Paradox', 'paradox81ru@mail.ru').name("Жорж", "Парадокс") \
-                                .role(UserRoles.director).set_password('Cucumber_123').build()
-    user_user = UserBuilder("User", 'paradox81ru@hotmail.com').name('Пользователь').set_password('Cucumber_123').build()
+                                .role(UserRoles.director).set_password(settings.init_director_password.get_secret_value()).build()
+    user_user = UserBuilder("User", 'paradox81ru@hotmail.com').name('Пользователь').set_password(settings.init_user_password.get_secret_value()).build()
     users = (user_admin, user_system, user_paradox, user_user)
     add_users(db, users)
 

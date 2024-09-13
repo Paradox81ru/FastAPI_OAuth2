@@ -5,6 +5,9 @@ from OAuth2.db.models.user import UserBuilder
 from OAuth2.db import crud
 from OAuth2 import schemas
 from OAuth2.schemas import UserRoles, UerStatus
+from OAuth2.config import get_settings
+
+settings = get_settings()
 
 def test_existence_original_users(db_session: Session):
     """ Проверяет наличие первониачальных пользователей """
@@ -12,38 +15,43 @@ def test_existence_original_users(db_session: Session):
     with db_session:
         user_count = db_session.execute(stmt).scalar_one()
         assert user_count == 4
+
     admin_user = crud.get_user_by_username(db_session, 'Admin')
     assert admin_user.username == 'Admin'
     assert admin_user.role == UserRoles.admin
     assert admin_user.status == UerStatus.ACTIVE
-
-    print(f"Admin user_model: {repr(admin_user)}")
-    admin_user_schema = models.User(**admin_user.to_dict())
+    print(f"Admin user_model: {repr(admin_user)}")   
+    admin_user_schema = schemas.UserInDB(**admin_user.to_dict())
     print(f"Admin user_schema: {repr(admin_user_schema)}")
-
+    assert not admin_user_schema.check_password("qwerty")
+    assert admin_user_schema.check_password(settings.init_admin_password.get_secret_value())
 
     system_user = crud.get_user_by_username(db_session, 'System')
     assert system_user.username == "System"
     assert system_user.role == UserRoles.system
     assert system_user.status == UerStatus.ACTIVE
+    system_user_schema = schemas.UserInDB(**system_user.to_dict())
+    assert not system_user_schema.check_password("qwerty")
+    assert system_user_schema.check_password(settings.init_system_password.get_secret_value())
 
-    paradox_user = crud.get_user_by_username(db_session, 'Paradox')
-    assert paradox_user.username == 'Paradox'
-    assert paradox_user.role == UserRoles.director
-    assert paradox_user.status == UerStatus.ACTIVE
+    director_user = crud.get_user_by_username(db_session, 'Paradox')
+    assert director_user.username == 'Paradox'
+    assert director_user.role == UserRoles.director
+    assert director_user.status == UerStatus.ACTIVE
+    director_user_schema = schemas.UserInDB(**director_user.to_dict())
+    assert not director_user_schema.check_password("qwerty")
+    assert director_user_schema.check_password(settings.init_director_password.get_secret_value())
 
     user = crud.get_user_by_username(db_session, 'User')
     assert user.username == 'User'
     assert user.role == UserRoles.visitor
     assert user.status == UerStatus.ACTIVE
+    user_schema = schemas.UserInDB(**user.to_dict())
+    assert not user_schema.check_password("qwerty")
+    assert user_schema.check_password(settings.init_user_password.get_secret_value())
 
     unknow_user = crud.get_user_by_username(db_session, 'Unknow')
-    print(f"unckno user: {unknow_user}")
-
-
-# def test_check_password(db_session: Session):
-#     user = crud.get_user_schema_by_username(db_session, 'Paradox')
-#     assert user.check_password('Cucumber_123')
+    print(f"Uncknow user: {unknow_user}")
 
 
 def test_add_user(db_session: Session):

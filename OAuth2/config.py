@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 15
     db_connect_str: str = 'sqlite:///db.sqlite3'
 
+    init_admin_password: SecretStr = "Cucumber_123"
+    init_system_password: SecretStr = "Cucumber_123"
+    init_director_password: SecretStr = "Cucumber_123"
+    init_user_password: SecretStr = "Cucumber_123"
+
 
 # @lru_cache
 def get_settings():
