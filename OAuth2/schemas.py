@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, SecretStr
-from enum import IntEnum
+from enum import StrEnum, IntEnum
 from datetime import datetime
 from OAuth2.config import pwd_context
 
@@ -43,14 +43,15 @@ class UserRoles(MyEnum):
     visitor = 9
 
 
+class JWTTokenType(StrEnum):
+    ACCESS  ='access'
+    REFRESH = 'refresh'
+
+
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
-
-
-# class TokenData(BaseModel):
-#     username: str | None = None
-#     scopes: list[str] = []
 
 
 class BaseUser(BaseModel):

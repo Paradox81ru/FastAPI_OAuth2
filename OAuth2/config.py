@@ -16,8 +16,8 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 class Settings(BaseSettings):
     secret_key: SecretStr = "15d29aad37ecf71a6094bf2552232839a9df526f968d3c49e6885883892dca01"
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 15
+    access_token_expire_minutes: int = 5
+    refresh_token_expire_minutes: int = 30
     db_connect_str: str = 'sqlite:///db.sqlite3'
 
     init_admin_password: SecretStr = "Cucumber_123"

@@ -1,8 +1,8 @@
 """Added accounts tables
 
-Revision ID: a47118ea369c
+Revision ID: 52a1f1641e80
 Revises: 
-Create Date: 2024-09-11 13:04:41.401088
+Create Date: 2024-09-14 11:23:43.936935
 
 """
 from typing import Sequence, Union
@@ -11,11 +11,11 @@ from alembic import op
 import sqlalchemy as sa
 from OAuth2.db.db_connection import db_session
 from OAuth2.utils import init_users
-from  OAuth2.db.db_types import MyDateTime
+from OAuth2.db.db_types import MyDateTime
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'a47118ea369c'
+revision: str = '52a1f1641e80'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -39,7 +39,7 @@ def upgrade() -> None:
     op.create_table('accounts_jwt_token',
     sa.Column('jti', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('revoked', sa.Boolean(), nullable=False),
+    sa.Column('expire', sa.DATETIME(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['accounts_user.id'], ),
     sa.PrimaryKeyConstraint('jti')
     )

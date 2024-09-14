@@ -9,6 +9,16 @@
         "justMyCode": true
       },
       {
+        "name": "Pytest current file",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "pytest",
+        "args": ["${file}"],
+        "cwd": "${workspaceFolder}" ,
+        "console": "integratedTerminal",
+        "env": {"PYTHONPATH": "${workspaceFolder}"}
+      },
+      {
         "args": ["--nf", "--lf"],
         "name": "PyTest New and Failing",
         "type": "debugpy",

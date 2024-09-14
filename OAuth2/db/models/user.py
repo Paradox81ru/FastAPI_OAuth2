@@ -23,7 +23,7 @@ class User(Base):
     role: Mapped[UserRoles] = mapped_column(SMALLINT)
     date_joined: Mapped[datetime] = mapped_column(MyDateTime, default=datetime.now)
     last_login: Mapped[datetime | None] = mapped_column(MyDateTime)
-    jwt_tokens: Mapped[list['JWTToken']] = relationship(back_populates='subject')
+    jwt_tokens: Mapped[list['JWTToken']] = relationship(back_populates='subject', cascade="all, delete-orphan")
 
 
     def set_password(self, password: str):
