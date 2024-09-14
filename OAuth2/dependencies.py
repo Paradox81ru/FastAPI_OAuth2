@@ -25,46 +25,75 @@ def get_db_session():
         finally:
             db_session.close()
 
-
-
-async def get_current_user(db_session: Annotated[Session, Depends(get_db_session)], security_scopes: SecurityScopes, 
-                           token: Annotated[str, Depends(oauth2_scheme)]) -> AnonymUser | User:
-    # Если токена нет, то это анонимный пользователь.
+def _validate_token(db_session: Session, token: str, jwt_token_type: JWTTokenType) -> dict:
+    """
+    Проверят валидность токена, и если он валидный, то возвращзает его содержимое
+    :return : payload
+    """
     if token is None:
-        return AnonymUser()
-    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' \
-        if security_scopes.scopes else "Bearer"
+        return None
     try:
         payload: dict = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'])
-        # Актуален для проверки именно токен доступа.
-        if payload.get('type') != JWTTokenType.ACCESS:
-             raise AuthenticateException("Could not validate credentials", authenticate_value)
+        if payload.get('type') != jwt_token_type:
+             raise AuthenticateException("The JWT token is damaged")
         jti: str = payload.get('jti')
         # Проверка, есть ли этот токен в базе.
         if not has_jwt_token(db_session, jti):
             # Если нет, то токен не валидный.
-            raise AuthenticateException("Could not validate credentials", authenticate_value)
-        username: str = payload.get('sub')
-        if username is None:
-            raise AuthenticateException("Could not validate credentials", authenticate_value)
-        token_scopes = payload.get('scopes', [])
+            raise AuthenticateException("Could not validate credentials")
+        # Если в токенен не указан пользователь, то токен не валидный.
+        if payload.get('sub') is None:
+            raise AuthenticateException("Could not validate credentials")
+        return payload
     except (ExpiredSignatureError) as err:
         # Если токен просрочен, то он всё равно раскодируется, чтобы найти JTI токена,    
         payload = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'], options={"verify_signature": False})
         # по которому он удаляется из базы данных.
         remove_jwt_token(db_session, payload.get('jti'))
-        raise AuthenticateException("JWT token is expired", authenticate_value)
+        raise AuthenticateException("The JWT token is expired")
     except (jwt.InvalidTokenError, ValidationError):
-        raise AuthenticateException("Could not validate credentials", authenticate_value)
+        raise AuthenticateException("The JWT token is damaged")
+
+
+async def validate_access_token(db_session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+    """
+    Проверяет валидность токена доступа
+    :return : payload - содержимое токена
+    """
+    return _validate_token(db_session, token, JWTTokenType.ACCESS)
+
+async def validate_refresh_token(db_session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+    """
+    Проверяет валидность токена обновления
+    :return : payload - содержимое токена
+    """
+    return _validate_token(db_session, token, JWTTokenType.REFRESH)
+
+
+async def get_current_user(db_session: Annotated[Session, Depends(get_db_session)], payload: Annotated[dict, Depends(validate_access_token)]):
+    """ Возвращет пользователя по токену доступа, или анонимного пользователя, если токена доступа не было предоставлено вообще """
+    if payload is None:
+        return AnonymUser()
+    username: str = payload.get('sub')
     user: User = get_user_schema_by_username(db_session, username).to_user()
     if not user:
-        raise AuthenticateException("Could not validate credentials", authenticate_value)
+        raise AuthenticateException("Could not validate credentials")
     if user.status != UerStatus.ACTIVE:
-        raise AuthenticateException("Inactive user", authenticate_value)
+        raise AuthenticateException("Inactive user")
+    return user
+
+
+def check_scope(payload: Annotated[dict, Depends(validate_access_token)], security_scopes: SecurityScopes):
+    """ Проверяет scopes """
+    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' if security_scopes.scopes else "Bearer"
+    if len(security_scopes.scopes) == 0:
+        return
+    if payload is None:
+        raise AuthenticateException("Not enough permissions", authenticate_value)
+    token_scopes = payload.get('scopes', [])
     for scope in security_scopes.scopes:
         if scope not in token_scopes:
             raise AuthenticateException("Not enough permissions", authenticate_value)
-    return user
 
 
 def check_role(allowed_roles: tuple[str, ...] | list[str]):

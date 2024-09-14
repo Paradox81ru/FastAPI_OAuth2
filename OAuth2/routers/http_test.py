@@ -3,7 +3,7 @@ from OAuth2.schemas import UserRoles
 from typing import Annotated
 from fastapi import APIRouter, Depends, Security
 
-from OAuth2.dependencies import get_current_user, check_role, is_auth, is_not_auth
+from OAuth2.dependencies import get_current_user, check_role, check_scope, is_auth, is_not_auth
 from OAuth2.schemas import User
 
 
@@ -12,13 +12,13 @@ router = APIRouter(
     tags=['test'])
 
 
-@router.get("/users/me", response_model=User)
+@router.get("/users/me", response_model=User, dependencies=[Security(check_scope, scopes=['me'])])
 async def reader_users_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
 
 
-@router.get("/users/me/items")
-async def read_own_items(current_user: Annotated[User, Security(get_current_user, scopes=['items'])]):
+@router.get("/users/me/items", dependencies=[Security(check_scope, scopes=['me', 'items'])])
+async def read_own_items(current_user: Annotated[User, Depends(get_current_user)]):
     return  [{"item_id": "Foo", "owner": current_user.username}]
 
 

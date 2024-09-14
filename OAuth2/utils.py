@@ -5,6 +5,7 @@ from fastapi import Depends
 import jwt
 import uuid
 from uuid import UUID
+
 from OAuth2.config import get_settings
 from OAuth2.db.models.user import UserBuilder
 from OAuth2.dependencies import get_db_session
