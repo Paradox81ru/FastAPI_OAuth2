@@ -1,17 +1,17 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
-
-from fastapi import Depends
-import jwt
-import uuid
 from uuid import UUID
 
+import jwt
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 from OAuth2.config import get_settings
+from OAuth2.db import crud
 from OAuth2.db.models.user import UserBuilder
 from OAuth2.dependencies import get_db_session
-from OAuth2.schemas import UserRoles, JWTTokenType, User
-from OAuth2.db import crud
-from sqlalchemy.orm import Session
+from OAuth2.schemas import UserRoles, JWTTokenType
 
 settings = get_settings()
 

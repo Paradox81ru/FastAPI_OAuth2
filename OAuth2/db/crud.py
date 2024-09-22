@@ -1,9 +1,11 @@
 from datetime import datetime
-from sqlalchemy.orm import Session
-from sqlalchemy import delete, select, func
-from OAuth2.db import models
-from OAuth2 import schemas
 from uuid import UUID
+
+from sqlalchemy import select, func
+from sqlalchemy.orm import Session
+
+from OAuth2 import schemas
+from OAuth2.db import models
 import sqlalchemy.dialects.sqlite as dialects_sqlite
 
 

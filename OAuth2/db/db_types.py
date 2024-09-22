@@ -1,5 +1,7 @@
-from sqlalchemy import types
 from datetime import datetime
+
+from sqlalchemy import types
+
 
 class MyDateTime(types.TypeDecorator):
     impl = types.DateTime

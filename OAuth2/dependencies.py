@@ -1,19 +1,16 @@
+import jwt
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer, SecurityScopes
+from fastapi.security import SecurityScopes
+from jwt.exceptions import ExpiredSignatureError
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
+from typing_extensions import Annotated
+
 from OAuth2.config import get_settings, oauth2_scheme
 from OAuth2.db.crud import get_user_schema_by_username, has_jwt_token, remove_jwt_token
 from OAuth2.db.db_connection import db_session
-from typing_extensions import Annotated
-from sqlalchemy.orm import Session
-
-from OAuth2.schemas import AnonymUser, UerStatus, User, JWTTokenType
-
-import jwt
-import base64
-from jwt.exceptions import ExpiredSignatureError
-
 from OAuth2.exceptions import AuthenticateException
+from OAuth2.schemas import AnonymUser, UerStatus, User, JWTTokenType
 
 settings = get_settings()
 

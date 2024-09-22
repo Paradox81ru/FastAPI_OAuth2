@@ -1,12 +1,13 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from OAuth2.config import get_settings
+from OAuth2.db.crud import add_jwt_token, remove_jwt_token
 from OAuth2.dependencies import get_db_session, validate_refresh_token
 from OAuth2.schemas import Token
-from OAuth2.db.crud import add_jwt_token, remove_jwt_token
 from OAuth2.utils import authenticate_user, create_access_token, create_refresh_token
 
 settings = get_settings()

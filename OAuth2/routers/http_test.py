@@ -1,11 +1,11 @@
 
-from OAuth2.schemas import UserRoles
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, Security
 
 from OAuth2.dependencies import get_current_user, check_role, check_scope, is_auth, is_not_auth
 from OAuth2.schemas import User, AnonymUser
-
+from OAuth2.schemas import UserRoles
 
 router = APIRouter(
     prefix='/test',

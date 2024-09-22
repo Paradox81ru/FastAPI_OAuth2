@@ -1,7 +1,10 @@
-from pydantic import BaseModel, ConfigDict, SecretStr
-from enum import StrEnum, IntEnum
 from datetime import datetime
+from enum import StrEnum, IntEnum
+
+from pydantic import BaseModel, ConfigDict, SecretStr
+
 from OAuth2.config import pwd_context
+
 
 class MyEnum(IntEnum):
     @classmethod
@@ -86,7 +89,6 @@ class UserInDB(User):
     password_hash: SecretStr
 
     def check_password(self, password: str):
-        _check =  pwd_context.verify(password, self.password_hash.get_secret_value())
         return pwd_context.verify(password, self.password_hash.get_secret_value())
     
     def to_user(self):

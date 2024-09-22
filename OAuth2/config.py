@@ -1,10 +1,10 @@
-from fastapi.security import OAuth2PasswordBearer
-from pydantic_settings import BaseSettings
-from functools import lru_cache
+import os
+
 from dotenv import load_dotenv
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from pydantic import SecretStr
-import os
+from pydantic_settings import BaseSettings
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
