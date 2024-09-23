@@ -83,7 +83,7 @@ def test_authorized_user(client: TestClient, api_settings):
     # Только авторизованный пользователь директором
     response = client.get("/api/test/authorized_user", headers=get_token_headers(response_director_json))
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "role": "director" }
+    assert response.json() == {"status": "ok", "username": "Paradox",  "role": "director" }
 
     # Запрос токена на пользователя
     response_user_json = get_response_user_json(client, api_settings)
@@ -91,7 +91,7 @@ def test_authorized_user(client: TestClient, api_settings):
     # Только авторизованный пользователь пользователем
     response = client.get("/api/test/authorized_user", headers=get_token_headers(response_user_json))
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "role": "visitor" }
+    assert response.json() == {"status": "ok", "username": "User",  "role": "visitor" }
 
 
 def test_not_authorized_user(client: TestClient, api_settings):
