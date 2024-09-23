@@ -7,8 +7,8 @@ from sqlalchemy.inspection import inspect
 
 
 class Base(DeclarativeBase):
-    def to_dict(self, *, exclude: list[str] = []):
-        _exclude = copy(exclude)
+    def to_dict(self, *, exclude: list[str] = None):
+        _exclude = copy(exclude) if exclude is not None else []
         _exclude.extend(('_sa_instance_state', ))
         mapper = inspect(self)
         # return mapper.dict

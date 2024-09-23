@@ -10,7 +10,7 @@ from OAuth2.config import get_settings, oauth2_scheme
 from OAuth2.db.crud import get_user_schema_by_username, has_jwt_token, remove_jwt_token
 from OAuth2.db.db_connection import db_session
 from OAuth2.exceptions import AuthenticateException
-from OAuth2.schemas import AnonymUser, UerStatus, User, JWTTokenType
+from OAuth2.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles
 
 settings = get_settings()
 
@@ -22,9 +22,9 @@ def get_db_session():
         finally:
             db_session.close()
 
-def _validate_token(db_session: Session, token: str, jwt_token_type: JWTTokenType) -> dict:
+def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) -> dict | None:
     """
-    Проверят валидность токена, и если он валидный, то возвращзает его содержимое
+    Проверят валидность токена, и если он валидный, то возвращает его содержимое
     :return : payload
     """
     if token is None:
@@ -35,44 +35,44 @@ def _validate_token(db_session: Session, token: str, jwt_token_type: JWTTokenTyp
              raise AuthenticateException("The JWT token is damaged")
         jti: str = payload.get('jti')
         # Проверка, есть ли этот токен в базе.
-        if not has_jwt_token(db_session, jti):
+        if not has_jwt_token(session, jti):
             # Если нет, то токен не валидный.
             raise AuthenticateException("Could not validate credentials")
-        # Если в токенен не указан пользователь, то токен не валидный.
+        # Если в токене не указан пользователь, то токен не валидный.
         if payload.get('sub') is None:
             raise AuthenticateException("Could not validate credentials")
         return payload
-    except (ExpiredSignatureError) as err:
+    except ExpiredSignatureError as err:
         # Если токен просрочен, то он всё равно раскодируется, чтобы найти JTI токена,    
         payload = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'], options={"verify_signature": False})
         # по которому он удаляется из базы данных.
-        remove_jwt_token(db_session, payload.get('jti'))
+        remove_jwt_token(session, payload.get('jti'))
         raise AuthenticateException("The JWT token is expired")
     except (jwt.InvalidTokenError, ValidationError):
         raise AuthenticateException("The JWT token is damaged")
 
 
-async def validate_access_token(db_session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+async def validate_access_token(session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     """
     Проверяет валидность токена доступа
     :return : payload - содержимое токена
     """
-    return _validate_token(db_session, token, JWTTokenType.ACCESS)
+    return _validate_token(session, token, JWTTokenType.ACCESS)
 
-async def validate_refresh_token(db_session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+async def validate_refresh_token(session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     """
     Проверяет валидность токена обновления
     :return : payload - содержимое токена
     """
-    return _validate_token(db_session, token, JWTTokenType.REFRESH)
+    return _validate_token(session, token, JWTTokenType.REFRESH)
 
 
-async def get_current_user(db_session: Annotated[Session, Depends(get_db_session)], payload: Annotated[dict, Depends(validate_access_token)]):
-    """ Возвращет пользователя по токену доступа, или анонимного пользователя, если токена доступа не было предоставлено вообще """
+async def get_current_user(session: Annotated[Session, Depends(get_db_session)], payload: Annotated[dict, Depends(validate_access_token)]):
+    """ Возвращает пользователя по токену доступа, или анонимного пользователя, если токена доступа не было предоставлено вообще """
     if payload is None:
         return AnonymUser()
     username: str = payload.get('sub')
-    user: User = get_user_schema_by_username(db_session, username).to_user()
+    user: User = get_user_schema_by_username(session, username).to_user()
     if not user:
         raise AuthenticateException("Could not validate credentials")
     if user.status != UerStatus.ACTIVE:
@@ -93,7 +93,7 @@ def check_scope(payload: Annotated[dict, Depends(validate_access_token)], securi
             raise AuthenticateException("Not enough permissions", authenticate_value)
 
 
-def check_role(allowed_roles: tuple[str, ...] | list[str]):
+def check_role(allowed_roles: tuple[str, ...] | list[str] | list[UserRoles]):
     """ Проверяет роль пользователя """
     def _check_role(user: Annotated[User, Depends(get_current_user)]):
         if user.role in allowed_roles:

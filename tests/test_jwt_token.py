@@ -9,9 +9,8 @@ import uuid
 
 def _add_jwt_token(db_session: Session, lifetime: int, username: str):
     """
-    Добавляеет данные о JWT токене
+    Добавляет данные о JWT токене
     :param db_session: сессия базы данных
-    :param jti: уникальный UUID код JWT токена
     :param lifetime: время истечения срока токена в минутах
     :param username: имя пользователя, на которого выписывается токен
     :return : уникальный UUID код токена
@@ -25,7 +24,7 @@ def _add_jwt_token(db_session: Session, lifetime: int, username: str):
 
 
 def test_jwt_token(db_session: Session):
-    """ Тестирвет создание, поиск и удаление JWT токенов """
+    """ Тестирует создание, поиск и удаление JWT токенов """
     username: final = 'User'
 
     jti = uuid.uuid4()

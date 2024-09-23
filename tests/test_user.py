@@ -10,7 +10,7 @@ from OAuth2.config import get_settings
 settings = get_settings()
 
 def test_existence_original_users(db_session: Session):
-    """ Проверяет наличие первониачальных пользователей """
+    """ Проверяет наличие первоначальных пользователей """
     stmt = select(func.count(models.User.id))
     with db_session:
         user_count = db_session.execute(stmt).scalar_one()
@@ -50,8 +50,8 @@ def test_existence_original_users(db_session: Session):
     assert not user_schema.check_password("qwerty")
     assert user_schema.check_password(settings.init_user_password.get_secret_value())
 
-    unknow_user = crud.get_user_by_username(db_session, 'Unknow')
-    print(f"Uncknow user: {unknow_user}")
+    unknown_user = crud.get_user_by_username(db_session, 'Unknown')
+    print(f"Unknown user: {unknown_user}")
 
 
 def test_add_user(db_session: Session):

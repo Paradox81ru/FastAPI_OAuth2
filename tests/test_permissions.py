@@ -4,12 +4,12 @@ from OAuth2.config import Settings
 
 
 def get_token_headers(response_json):
-    """ Возвращет заголовок авторизолванного пользователя """
+    """ Возвращает заголовок авторизованного пользователя """
     return {'Authorization': f"Bearer {response_json['access_token']}"}
 
 
 def get_user_data(user, api_settings: Settings):
-    """ Возвращет данные для авторизации пользователя """
+    """ Возвращает данные для авторизации пользователя """
     get_password = {
         'Admin': api_settings.init_admin_password.get_secret_value,
         'Paradox': api_settings.init_director_password.get_secret_value,
@@ -37,8 +37,8 @@ def get_response_user_json(client: TestClient, api_settings):
 
 
 def get_response_json(response: Response):
-    """ Возвращет JSON ответ """
-    response.status_code == 200
+    """ Возвращает JSON ответ """
+    assert response.status_code == 200
     response_json = response.json()
     assert response_json['token_type'] == 'bearer'
     return response_json
@@ -53,7 +53,7 @@ def test_admin_roles(client: TestClient, api_settings):
 
     # Запрос токена для админа с неправильным паролем.
     response = client.post("/api/oauth/token", data={"username": 'Admin', 'password': "qwerty"})
-    response.status_code == 400
+    assert response.status_code == 400
     assert response.json() == {"detail": "Incorrect username or password"}
 
     # Запрос токена на админа
@@ -61,12 +61,12 @@ def test_admin_roles(client: TestClient, api_settings):
 
     # Только для админ с авторизацией
     response = client.get("/api/test/only_admin", headers={'Authorization': f"Bearer {response_admin_json['access_token']}"})
-    response.status_code == 200
+    assert response.status_code == 200
     assert response.json() == {"status": "ok", "role": "admin" }
 
-    # Только для диретора с авторизацей
+    # Только для директора с авторизацей
     response = client.get("/api/test/only_director", headers=get_token_headers(response_admin_json))
-    response.status_code == 401
+    assert response.status_code == 401
     assert response.json() == {"detail": "Not enough permissions"}
 
 
