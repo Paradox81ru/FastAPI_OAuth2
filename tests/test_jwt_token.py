@@ -1,54 +1,63 @@
 from datetime import datetime, timedelta
 from typing import final
 from sqlalchemy import select, func
-from OAuth2.db import models
+from OAuth2.db.models.user import User
+from OAuth2.db.models.user_manager import UserManager
+from OAuth2.db.models.jwt_token import JWTToken
+from OAuth2.db.models.jwt_token_manager import JWTTokenManager
 from sqlalchemy.orm import Session
-from OAuth2.db import crud
 import uuid
+
+from tests.conftest import db_session
 
 
 def _add_jwt_token(db_session: Session, lifetime: int, username: str):
     """
     Добавляет данные о JWT токене
-    :param db_session: сессия базы данных
+    :param db_session: сессия для работы с БД
     :param lifetime: время истечения срока токена в минутах
     :param username: имя пользователя, на которого выписывается токен
     :return : уникальный UUID код токена
     """
+    jwt_token_manger = JWTTokenManager(db_session)
     jti = uuid.uuid4()
     data_expire = datetime.now() + timedelta(minutes=lifetime)
-    crud.add_jwt_token(db_session, jti, data_expire, username)
-    assert crud.has_jwt_token(db_session, jti)
+    jwt_token_manger.add_jwt_token(jti, data_expire, username)
+    assert jwt_token_manger.has_jwt_token(jti)
     return jti
 
 
 
 def test_jwt_token(db_session: Session):
     """ Тестирует создание, поиск и удаление JWT токенов """
+    jwt_token_manager = JWTTokenManager(db_session)
+    user_manager = UserManager(db_session)
     username: final = 'User'
 
     jti = uuid.uuid4()
-    assert not crud.has_jwt_token(db_session, jti)
+    assert not jwt_token_manager.has_jwt_token(jti)
 
     _add_jwt_token(db_session, -1, username)
     jti = _add_jwt_token(db_session, -1, username)
 
     # Общее количество токенов у пользователя.
-    token_count = crud.get_user_jwt_token_count(db_session, username)
+    token_count = jwt_token_manager.get_user_jwt_token_count(username)
     assert token_count == 2
 
-    token: models.JWTToken = crud.get_jwt_token(db_session, jti)   
-    user: models.User = token.subject
+    # token: JWTToken = jwt_token_manager.get_jwt_token(jti)
+    # user: User = token.subject
+    user = user_manager.get_user_by_jwt_token(jti)
     assert user.username == username
     assert len(user.jwt_tokens) == 2
 
-    crud.remove_user_jwt_tokens(db_session, user.username)
-    user = crud.get_user_by_username(db_session, username)
+    jwt_token_manager.remove_user_jwt_tokens(user.username)
+    user = user_manager.get_user_by_username(username)
     assert len(user.jwt_tokens) == 0
 
 
 def test_remove_expire_tokens(db_session: Session):
     """ Тестирует удаление просроченных JWT токенов """
+    jwt_token_manger = JWTTokenManager(db_session)
     username: final = 'Paradox'
 
     _add_jwt_token(db_session, -2, username)
@@ -56,12 +65,12 @@ def test_remove_expire_tokens(db_session: Session):
     jti =_add_jwt_token(db_session, 1, username)
 
     # У пользователя должно быть три токена.
-    assert crud.get_user_jwt_token_count(db_session, username) == 3
+    assert jwt_token_manger.get_user_jwt_token_count(username) == 3
 
-    crud.remove_expire_token(db_session)
+    jwt_token_manger.remove_expire_token()
     # У пользователя должен остаться один токен.
-    assert crud.get_user_jwt_token_count(db_session, username) == 1
+    assert jwt_token_manger.get_user_jwt_token_count(username) == 1
 
     # Удаляется последний токен.
-    crud.remove_jwt_token(db_session, jti)
-    assert crud.get_user_jwt_token_count(db_session, username) == 0
+    jwt_token_manger.remove_jwt_token(jti)
+    assert jwt_token_manger.get_user_jwt_token_count(username) == 0

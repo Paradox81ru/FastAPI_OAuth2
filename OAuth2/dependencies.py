@@ -7,10 +7,11 @@ from sqlalchemy.orm import Session
 from typing_extensions import Annotated
 
 from OAuth2.config import get_settings, oauth2_scheme
-from OAuth2.db.crud import get_user_schema_by_username, has_jwt_token, remove_jwt_token
 from OAuth2.db.db_connection import db_session
 from OAuth2.exceptions import AuthenticateException
 from OAuth2.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles
+from OAuth2.db.models.user_manager import UserManager
+from OAuth2.db.models.jwt_token_manager import JWTTokenManager
 
 settings = get_settings()
 
@@ -27,6 +28,7 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
     Проверят валидность токена, и если он валидный, то возвращает его содержимое
     :return : payload
     """
+    jwt_token_manager = JWTTokenManager(session)
     if token is None:
         return None
     try:
@@ -35,7 +37,7 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
              raise AuthenticateException("The JWT token is damaged")
         jti: str = payload.get('jti')
         # Проверка, есть ли этот токен в базе.
-        if not has_jwt_token(session, jti):
+        if not jwt_token_manager.has_jwt_token(jti):
             # Если нет, то токен не валидный.
             raise AuthenticateException("Could not validate credentials")
         # Если в токене не указан пользователь, то токен не валидный.
@@ -46,7 +48,7 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
         # Если токен просрочен, то он всё равно раскодируется, чтобы найти JTI токена,    
         payload = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'], options={"verify_signature": False})
         # по которому он удаляется из базы данных.
-        remove_jwt_token(session, payload.get('jti'))
+        jwt_token_manager.remove_jwt_token(payload.get('jti'))
         raise AuthenticateException("The JWT token is expired")
     except (jwt.InvalidTokenError, ValidationError):
         raise AuthenticateException("The JWT token is damaged")
@@ -69,10 +71,11 @@ async def validate_refresh_token(session: Annotated[Session, Depends(get_db_sess
 
 async def get_current_user(session: Annotated[Session, Depends(get_db_session)], payload: Annotated[dict, Depends(validate_access_token)]):
     """ Возвращает пользователя по токену доступа, или анонимного пользователя, если токена доступа не было предоставлено вообще """
+    user_manager = UserManager(session)
     if payload is None:
         return AnonymUser()
     username: str = payload.get('sub')
-    user: User = get_user_schema_by_username(session, username).to_user()
+    user: User = user_manager.get_user_schema_by_username(username).to_user()
     if not user:
         raise AuthenticateException("Could not validate credentials")
     if user.status != UerStatus.ACTIVE:

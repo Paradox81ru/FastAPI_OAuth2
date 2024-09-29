@@ -1,12 +1,16 @@
+from contextlib import contextmanager
 from datetime import datetime
+from uuid import UUID
+
+from OAuth2 import schemas
 from OAuth2.db.models import Base
 from sqlalchemy import String, SMALLINT
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, Session
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
 from OAuth2.config import pwd_context
 from OAuth2.schemas import UserRoles, UerStatus
 from OAuth2.db.db_types import MyDateTime
-# from OAuth2.db.models import JWTToken
+from OAuth2.db.db_connection import engine
 
 
 class User(Base):
@@ -32,22 +36,23 @@ class User(Base):
 
 class UserBuilder:
     """ Класс создатель пользователя """
+
     def __init__(self, username: str, email: str) -> None:
         self._user = User(username=username, email=email)
-    
+
     def name(self, first_name='', last_name=''):
         self._user.first_name = first_name
         self._user.last_name = last_name
         return self
-    
+
     def role(self, role: UserRoles):
         self._user.role = role
         return self
-    
+
     def set_password(self, password):
         self._user.set_password(password)
         return self
-    
+
     def build(self):
         if self._user.password_hash is None:
             raise AttributeError("The password field is not set")

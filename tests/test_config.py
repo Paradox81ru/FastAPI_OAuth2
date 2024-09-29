@@ -1,5 +1,4 @@
 from OAuth2.config import get_settings
-from OAuth2.db import crud
 import os
 
 def test_settings():
