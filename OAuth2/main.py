@@ -1,8 +1,8 @@
 import uvicorn
 from fastapi import FastAPI
 
-from Auth.config import get_settings
-from Auth.routers import auth, http_test
+from OAuth2.Auth.config import get_settings
+from OAuth2.Auth.routers import auth, http_test
 
 settings = get_settings()
 

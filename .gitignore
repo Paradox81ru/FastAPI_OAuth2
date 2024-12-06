@@ -60,7 +60,7 @@ cover/
 temp.py
 local_settings.py
 db-test.sqlite3
-db.sqlite3
+OAuth2/db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
@@ -124,7 +124,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+OAuth2/.env
+#.env
 .venv
 env/
 venv/
