@@ -21,7 +21,13 @@ router = APIRouter(
 @router.post("/token")
 async def login_for_access_token(db_session: Annotated[Session, Depends(get_db_session)], 
                                  form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request):
-    """ Выдача токена доступа при авторизации """
+    """
+    Выдача токена доступа при авторизации
+    :param db_session: сессия базы данных
+    :param form_data: данные из формы логин-пароля
+    :param request:
+    :return: токен доступа
+    """
     user_manager = UserManager(db_session)
     jwt_token_manager = JWTTokenManager(db_session)
     user = user_manager.get_authenticate_user(form_data.username, form_data.password)
@@ -35,7 +41,12 @@ async def login_for_access_token(db_session: Annotated[Session, Depends(get_db_s
 
 @router.post("/token-refresh")
 async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_session)], payload: Annotated[dict, Depends(validate_refresh_token)]):
-    """ Обновление токена доступа """
+    """
+    Обновление токена доступа
+    :param db_session: сессия базы данных
+    :param payload: данные из полученного
+    :return:
+    """
     jwt_token_manager = JWTTokenManager(db_session)
     jti = payload.get('jti')
     username = payload.get('sub')
@@ -46,7 +57,7 @@ async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_ses
     jwt_token_manager.remove_jwt_token(jti)
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 
-@router.get("/signup")
-async def signup(db_session: Annotated[Session, Depends(get_db_session)]):
-    """ Регистрация нового пользователя """
-    return {"message": "signup"}
+# @router.get("/signup")
+# async def signup(db_session: Annotated[Session, Depends(get_db_session)]):
+#     """ Регистрация нового пользователя """
+#     return {"message": "signup"}

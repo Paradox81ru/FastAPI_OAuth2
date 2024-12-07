@@ -11,6 +11,11 @@ from Auth.db.db_connection import engine
 
 class Base(DeclarativeBase):
     def to_dict(self, *, exclude: list[str] = None):
+        """
+        Возвращает данные в виде словаря
+        :param exclude: список аттрибутов, которые не надо включать в возвращаемый словарь данных.
+        :return:
+        """
         _exclude = copy(exclude) if exclude is not None else []
         _exclude.extend(('_sa_instance_state', ))
         mapper = inspect(self)

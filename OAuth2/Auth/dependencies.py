@@ -27,6 +27,9 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
     """
     Проверят валидность токена, и если он валидный, то возвращает его содержимое
     :return : payload
+    :param token: токен
+    :param jwt_token_type: тип токена
+    :return:
     """
     jwt_token_manager = JWTTokenManager(session)
     if token is None:
