@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 
-from OAuth2.Auth.config import get_settings
-from OAuth2.Auth.db.models.user import UserBuilder
-from OAuth2.Auth.db.models.user_manager import UserManager
-from OAuth2.Auth.schemas import UserRoles
+from Auth.config import get_settings
+from Auth.db.models.user import UserBuilder
+from Auth.db.models.user_manager import UserManager
+from Auth.schemas import UserRoles
 
 settings = get_settings()
 

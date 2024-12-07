@@ -5,10 +5,10 @@ from uuid import UUID
 import jwt
 from sqlalchemy import select, func
 
-from OAuth2.Auth.config import get_settings
-from OAuth2.Auth.db.models import User, JWTToken
-from OAuth2.Auth.db.models.base import BaseManager
-from OAuth2.Auth.schemas import JWTTokenType
+from Auth.config import get_settings
+from Auth.db.models import User, JWTToken
+from Auth.db.models.base import BaseManager
+from Auth.schemas import JWTTokenType
 
 settings = get_settings()
 

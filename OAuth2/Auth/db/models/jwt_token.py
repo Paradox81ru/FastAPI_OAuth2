@@ -1,5 +1,5 @@
 from datetime import datetime
-from OAuth2.Auth.db.models import Base, User
+from Auth.db.models import Base, User
 from sqlalchemy import String, SMALLINT, UUID, ForeignKey, DATETIME, select, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

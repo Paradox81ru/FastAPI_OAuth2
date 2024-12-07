@@ -3,7 +3,7 @@ from enum import StrEnum, IntEnum
 
 from pydantic import BaseModel, ConfigDict, SecretStr
 
-from OAuth2.Auth.config import pwd_context
+from Auth.config import pwd_context
 
 
 class MyEnum(IntEnum):

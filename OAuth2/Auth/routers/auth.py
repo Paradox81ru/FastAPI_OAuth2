@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from OAuth2.Auth.config import get_settings
-# from OAuth2.Auth.db.crud import add_jwt_token, remove_jwt_token
-from OAuth2.Auth.dependencies import get_db_session, validate_refresh_token
-from OAuth2.Auth.schemas import Token
-# from OAuth2.Auth.utils import authenticate_user, create_access_token, create_refresh_token
-from OAuth2.Auth.db.models.user_manager import UserManager
-from OAuth2.Auth.db.models.jwt_token_manager import JWTTokenManager
+from Auth.config import get_settings
+# from Auth.db.crud import add_jwt_token, remove_jwt_token
+from Auth.dependencies import get_db_session, validate_refresh_token
+from Auth.schemas import Token
+# from Auth.utils import authenticate_user, create_access_token, create_refresh_token
+from Auth.db.models.user_manager import UserManager
+from Auth.db.models.jwt_token_manager import JWTTokenManager
 
 settings = get_settings()
 

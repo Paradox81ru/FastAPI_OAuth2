@@ -2,15 +2,15 @@ from contextlib import contextmanager
 from datetime import datetime
 from uuid import UUID
 
-from OAuth2.Auth import schemas
-from OAuth2.Auth.db.models import Base
+from Auth import schemas
+from Auth.db.models import Base
 from sqlalchemy import String, SMALLINT
 from sqlalchemy.orm import Mapped, mapped_column, relationship, Session
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
-from OAuth2.Auth.config import pwd_context
-from OAuth2.Auth.schemas import UserRoles, UerStatus
-from OAuth2.Auth.db.db_types import MyDateTime
-from OAuth2.Auth.db.db_connection import engine
+from Auth.config import pwd_context
+from Auth.schemas import UserRoles, UerStatus
+from Auth.db.db_types import MyDateTime
+from Auth.db.db_connection import engine
 
 
 class User(Base):

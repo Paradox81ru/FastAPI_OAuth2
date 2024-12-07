@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 from typing import final
 from sqlalchemy import select, func
-from OAuth2.Auth.db.models.user import User
-from OAuth2.Auth.db.models.user_manager import UserManager
-from OAuth2.Auth.db.models.jwt_token import JWTToken
-from OAuth2.Auth.db.models.jwt_token_manager import JWTTokenManager
+from Auth.db.models.user import User
+from Auth.db.models.user_manager import UserManager
+from Auth.db.models.jwt_token import JWTToken
+from Auth.db.models.jwt_token_manager import JWTTokenManager
 from sqlalchemy.orm import Session
 import uuid
 
-from .conftest import db_session
+from tests.conftest import db_session
 
 
 class TestJwtToken:

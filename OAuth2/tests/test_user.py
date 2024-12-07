@@ -1,14 +1,13 @@
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
-from OAuth2.Auth.db import models
-from OAuth2.Auth.db.models.user import UserBuilder
-from OAuth2.Auth.db.models.user_manager import UserManager
-from OAuth2.Auth import schemas
-from OAuth2.Auth.schemas import UserRoles, UerStatus
-from OAuth2.Auth.config import get_settings
+from Auth.db import models
+from Auth.db.models.user import UserBuilder
+from Auth.db.models.user_manager import UserManager
+from Auth import schemas
+from Auth.schemas import UserRoles, UerStatus
+from Auth.config import get_settings
 
 settings = get_settings()
-
 
 class TestUser:
 

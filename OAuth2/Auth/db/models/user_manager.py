@@ -1,9 +1,9 @@
 from uuid import UUID
 from typing import cast
 
-from OAuth2.Auth import schemas
-from OAuth2.Auth.db.models import User, JWTToken
-from OAuth2.Auth.db.models.base import BaseManager
+from Auth import schemas
+from Auth.db.models import User, JWTToken
+from Auth.db.models.base import BaseManager
 
 
 class UserManager(BaseManager):

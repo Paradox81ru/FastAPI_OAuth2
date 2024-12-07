@@ -9,9 +9,9 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from OAuth2.Auth.db.db_connection import db_session
-from OAuth2.Auth.utils import init_users
-from OAuth2.Auth.db.db_types import MyDateTime
+from Auth.db.db_connection import db_session
+from Auth.utils import init_users
+from Auth.db.db_types import MyDateTime
 
 
 # revision identifiers, used by Alembic.

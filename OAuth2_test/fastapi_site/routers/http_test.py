@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 
 # from fastapi_site.dependencies import validate_jwt_token
-from OAuth2_test.fastapi_site.schemas import AnonymUser, User
+from fastapi_site.schemas import AnonymUser, User
 import httpx
 
 router = APIRouter(

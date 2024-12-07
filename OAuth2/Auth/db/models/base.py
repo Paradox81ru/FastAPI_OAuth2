@@ -6,7 +6,7 @@ from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.orm import AttributeState
 from sqlalchemy.inspection import inspect
 
-from OAuth2.Auth.db.db_connection import engine
+from Auth.db.db_connection import engine
 
 
 class Base(DeclarativeBase):

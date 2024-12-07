@@ -6,12 +6,12 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
 
-from OAuth2.Auth.config import get_settings, oauth2_scheme
-from OAuth2.Auth.db.db_connection import db_session
-from OAuth2.Auth.exceptions import AuthenticateException
-from OAuth2.Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles
-from OAuth2.Auth.db.models.user_manager import UserManager
-from OAuth2.Auth.db.models.jwt_token_manager import JWTTokenManager
+from Auth.config import get_settings, oauth2_scheme
+from Auth.db.db_connection import db_session
+from Auth.exceptions import AuthenticateException
+from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles
+from Auth.db.models.user_manager import UserManager
+from Auth.db.models.jwt_token_manager import JWTTokenManager
 
 settings = get_settings()
 

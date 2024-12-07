@@ -2,8 +2,8 @@ from typing import final
 from fastapi.requests import HTTPConnection
 from starlette.applications import Starlette
 from starlette.authentication import AuthCredentials, AuthenticationBackend, AuthenticationError,  BaseUser
-from OAuth2_test.fastapi_site.schemas import AnonymUser, User
-from OAuth2_test.fastapi_site.utils import get_authorization_scheme_param
+from fastapi_site.schemas import AnonymUser, User
+from fastapi_site.utils import get_authorization_scheme_param
 
 import httpx
 
@@ -20,14 +20,15 @@ class JWTTokenAuthBackend(AuthenticationBackend):
             raise AuthenticationError("Not bearer authentication")
         user = await self.request_user(bearer_authorization)
         return AuthCredentials(['aaaa']), user
-    
-    async def request_user(self, bearer_authorization):
+
+    @classmethod
+    async def request_user(cls, bearer_authorization):
         api_url = f"{AUTH_SERVER}/api/test/get_user"
         async with httpx.AsyncClient() as client:
             response = await client.get(api_url, headers={"Authorization": bearer_authorization})
             if response.status_code == 401:
                 error_msg = response.json()['detail']
                 raise AuthenticationError(error_msg)
-            user = response.json() 
+            user = response.json()
             return User(**user)
         return AnonymUser()
