@@ -3,7 +3,7 @@ os.environ['IS_TEST'] = 'True'
 
 from fastapi.testclient import TestClient
 from main import app
-from Auth.config import get_settings
+from config import get_settings
 from Auth.db.db_connection import db_session as session
 import alembic.config
 import alembic.environment

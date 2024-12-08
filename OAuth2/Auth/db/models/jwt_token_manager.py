@@ -5,7 +5,7 @@ from uuid import UUID
 import jwt
 from sqlalchemy import select, func
 
-from Auth.config import get_settings
+from config import get_settings
 from Auth.db.models import User, JWTToken
 from Auth.db.models.base import BaseManager
 from Auth.schemas import JWTTokenType

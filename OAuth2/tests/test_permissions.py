@@ -1,6 +1,6 @@
 from fastapi import Response
 from fastapi.testclient import TestClient
-from Auth.config import Settings
+from config import Settings
 
 
 class TestPermissions:

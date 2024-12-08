@@ -1,16 +1,11 @@
-from contextlib import contextmanager
 from datetime import datetime
-from uuid import UUID
 
-from Auth import schemas
 from Auth.db.models import Base
 from sqlalchemy import String, SMALLINT
-from sqlalchemy.orm import Mapped, mapped_column, relationship, Session
-from sqlalchemy.orm import selectinload, joinedload, contains_eager
-from Auth.config import get_pwd_context
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from config import get_pwd_context
 from Auth.schemas import UserRoles, UerStatus
 from Auth.db.db_types import MyDateTime
-from Auth.db.db_connection import engine
 
 
 class User(Base):

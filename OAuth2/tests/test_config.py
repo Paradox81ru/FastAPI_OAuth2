@@ -1,4 +1,4 @@
-from Auth.config import get_settings
+from config import get_settings
 import os
 
 def test_settings():
