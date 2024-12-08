@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 from pwdlib import PasswordHash
 from pydantic import SecretStr
@@ -14,6 +15,8 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='/api/oauth/token',
     scopes={"me": "Read information about the current user.", "items": "Read items."}
 )
+
+templates = Jinja2Templates(directory="ui/jinja2")
 
 class MyPwdContext(AbstractPwdContext):
     def __init__(self, pwd_context):

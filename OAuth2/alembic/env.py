@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from Auth.db import models
-from Auth.config import get_settings
+from config import get_settings
 
 settings = get_settings()
 

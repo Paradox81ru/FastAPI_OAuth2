@@ -1,15 +1,15 @@
 import jwt
-from fastapi import Depends
+from fastapi import Depends, Form
 from fastapi.security import SecurityScopes
 from jwt.exceptions import ExpiredSignatureError
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
 
-from Auth.config import get_settings, oauth2_scheme
+from config import get_settings, oauth2_scheme
 from Auth.db.db_connection import db_session
 from Auth.exceptions import AuthenticateException
-from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles
+from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles, RequestFormData, FormData
 from Auth.db.models.user_manager import UserManager
 from Auth.db.models.jwt_token_manager import JWTTokenManager
 
@@ -84,6 +84,14 @@ async def get_current_user(session: Annotated[Session, Depends(get_db_session)],
     if user.status != UerStatus.ACTIVE:
         raise AuthenticateException("Inactive user")
     return user
+
+async def get_form_data(form_data: Annotated[RequestFormData, Form()]):
+    scope =[]
+    if form_data.scope_me:
+        scope.append("me")
+    if form_data.scope_items:
+        scope.append("items")
+    return FormData(username=form_data.username, password=form_data.password, scope=scope)
 
 
 def check_scope(payload: Annotated[dict, Depends(validate_access_token)], security_scopes: SecurityScopes):
