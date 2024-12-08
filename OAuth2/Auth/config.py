@@ -3,10 +3,12 @@ import os
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
+from pwdlib import PasswordHash
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+# pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+pwd_context = PasswordHash.recommended()
 
 oauth2_scheme = OAuth2PasswordBearer(
     auto_error=False,
