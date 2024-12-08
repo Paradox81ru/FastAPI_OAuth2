@@ -3,7 +3,7 @@ from enum import StrEnum, IntEnum
 
 from pydantic import BaseModel, ConfigDict, SecretStr
 
-from Auth.config import pwd_context
+from Auth.config import get_pwd_context
 
 
 class MyEnum(IntEnum):
@@ -89,7 +89,7 @@ class UserInDB(User):
     password_hash: SecretStr
 
     def check_password(self, password: str):
-        return pwd_context.verify(password, self.password_hash.get_secret_value())
+        return get_pwd_context().verify(password, self.password_hash.get_secret_value())
     
     def to_user(self):
         return User(**self.model_dump())

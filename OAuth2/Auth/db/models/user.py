@@ -7,7 +7,7 @@ from Auth.db.models import Base
 from sqlalchemy import String, SMALLINT
 from sqlalchemy.orm import Mapped, mapped_column, relationship, Session
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
-from Auth.config import pwd_context
+from Auth.config import get_pwd_context
 from Auth.schemas import UserRoles, UerStatus
 from Auth.db.db_types import MyDateTime
 from Auth.db.db_connection import engine
@@ -31,7 +31,7 @@ class User(Base):
 
 
     def set_password(self, password: str):
-        self.password_hash = pwd_context.hash(password)
+        self.password_hash = get_pwd_context().hash(password)
 
 
 class UserBuilder:
