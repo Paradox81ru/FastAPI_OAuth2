@@ -1,8 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
-from Auth.config import get_settings
+from config import get_settings
 from Auth.routers import auth, http_test
+from ui.routes import html
 
 settings = get_settings()
 
@@ -11,8 +13,10 @@ settings = get_settings()
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="ui/static"), name="static")
 app.include_router(auth.router, prefix='/api')
 app.include_router(http_test.router, prefix='/api')
+app.include_router(html.router, prefix="")
 
 
 if __name__ == "__main__":

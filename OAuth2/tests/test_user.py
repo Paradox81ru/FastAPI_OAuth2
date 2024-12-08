@@ -5,7 +5,7 @@ from Auth.db.models.user import UserBuilder
 from Auth.db.models.user_manager import UserManager
 from Auth import schemas
 from Auth.schemas import UserRoles, UerStatus
-from Auth.config import get_settings
+from config import get_settings
 
 settings = get_settings()
 

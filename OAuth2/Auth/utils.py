@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from Auth.config import get_settings
+from config import get_settings
 from Auth.db.models.user import UserBuilder
 from Auth.db.models.user_manager import UserManager
 from Auth.schemas import UserRoles

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from Auth.config import get_settings
+from config import get_settings
 # from Auth.db.crud import add_jwt_token, remove_jwt_token
 from Auth.dependencies import get_db_session, validate_refresh_token
 from Auth.schemas import Token
@@ -33,7 +33,7 @@ async def login_for_access_token(db_session: Annotated[Session, Depends(get_db_s
     user = user_manager.get_authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    print(request)
+    # print(request)
     access_token = jwt_token_manager.create_access_token(user.username, data={'scopes': form_data.scopes})
     refresh_token = jwt_token_manager.create_refresh_token(user.username)
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
