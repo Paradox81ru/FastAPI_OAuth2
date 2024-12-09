@@ -6,7 +6,7 @@ from fastapi_site.schemas import AnonymUser, User
 import httpx
 
 router = APIRouter(
-    prefix="/test",
+    prefix="",
     tags=['test']
 )
 
@@ -22,7 +22,7 @@ router = APIRouter(
 #     return AnonymUser()
 
 
-@router.get("/my-test")
+@router.get("/get_user")
 async def my_test(request: Request):
     user = request.user
     return user

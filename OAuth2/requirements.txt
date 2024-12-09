@@ -25,7 +25,7 @@ mdurl
 orjson
 packaging
 passlib[argon2, bcrypt]
-pwdlib[argon2, bcrypt]
+pwdlib[argon2]
 pluggy
 pydantic
 pydantic-extra-types
