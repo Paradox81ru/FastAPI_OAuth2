@@ -10,9 +10,9 @@ import httpx
 
 
 class JWTTokenAuthBackend(AuthenticationBackend):
-    def __init__(self, auth_server):
+    def __init__(self, auth_server_host, auth_server_port):
         super().__init__()
-        self._auth_server = auth_server
+        self._auth_server = f"http://{auth_server_host}:{auth_server_port}"
 
     async def authenticate(self, conn: HTTPConnection) -> tuple[AuthCredentials, BaseUser] | None:
         if "Authorization" not in conn.headers:
