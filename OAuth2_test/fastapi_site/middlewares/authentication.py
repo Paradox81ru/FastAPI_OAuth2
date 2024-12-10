@@ -2,14 +2,18 @@ from typing import final
 from fastapi.requests import HTTPConnection
 from starlette.applications import Starlette
 from starlette.authentication import AuthCredentials, AuthenticationBackend, AuthenticationError,  BaseUser
+
 from fastapi_site.schemas import AnonymUser, User
 from fastapi_site.utils import get_authorization_scheme_param
 
 import httpx
 
-AUTH_SERVER: final = 'http://127.0.0.1:8001'
 
 class JWTTokenAuthBackend(AuthenticationBackend):
+    def __init__(self, auth_server):
+        super().__init__()
+        self._auth_server = auth_server
+
     async def authenticate(self, conn: HTTPConnection) -> tuple[AuthCredentials, BaseUser] | None:
         if "Authorization" not in conn.headers:
             return AuthCredentials(), AnonymUser()
@@ -21,9 +25,8 @@ class JWTTokenAuthBackend(AuthenticationBackend):
         user = await self.request_user(bearer_authorization)
         return AuthCredentials(['aaaa']), user
 
-    @classmethod
-    async def request_user(cls, bearer_authorization):
-        api_url = f"{AUTH_SERVER}/api/test/get_user"
+    async def request_user(self, bearer_authorization):
+        api_url = f"{self._auth_server}/api/test/get_user"
         async with httpx.AsyncClient() as client:
             response = await client.get(api_url, headers={"Authorization": bearer_authorization})
             if response.status_code == 401:

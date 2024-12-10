@@ -6,8 +6,12 @@ h11
 httpcore
 httpx
 idna
+Jinja2
 pydantic
 pydantic_core
+pydantic-settings
+pytest
+python-dotenv
 sniffio
 starlette
 typing_extensions
