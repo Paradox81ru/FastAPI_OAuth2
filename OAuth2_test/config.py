@@ -10,10 +10,10 @@ templates = Jinja2Templates(directory="ui/jinja2")
 
 
 class Settings(BaseSettings):
-    auth_test_host: str = "http://localhost"
+    auth_test_host: str = "localhost"
     auth_test_port: int = 8000
 
-    auth_server_host: str = "http://localhost"
+    auth_server_host: str = "localhost"
     auth_server_port: int = 8001
 
 
