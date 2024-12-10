@@ -30,6 +30,9 @@ class MyPwdContext(AbstractPwdContext):
 
 
 class Settings(BaseSettings):
+    auth_host: str = "localhost"
+    auth_port: int = 8001
+
     secret_key: SecretStr = "15d29aad37ecf71a6094bf2552232839a9df526f968d3c49e6885883892dca01"
     access_token_expire_minutes: int = 5
     refresh_token_expire_minutes: int = 30
