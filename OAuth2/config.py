@@ -1,4 +1,6 @@
+import logging
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
@@ -16,7 +18,24 @@ oauth2_scheme = OAuth2PasswordBearer(
     scopes={"me": "Read information about the current user.", "items": "Read items."}
 )
 
+# Корневой каталог проекта
+root_path = Path(__file__).resolve().parents[0]
+
+LOGGER_FILENAME = Path(root_path, 'logs','OAuth2.log' )
 templates = Jinja2Templates(directory="ui/jinja2")
+
+def get_logger(logger_name: str) -> logging.Logger:
+    """ Возвращает логгер """
+    logger = logging.getLogger(logger_name)
+
+    logger_handler = logging.FileHandler(LOGGER_FILENAME, mode='a')
+    logger_formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
+    logger_handler.setFormatter(logger_formatter)
+    logger.addHandler(logger_handler)
+    # self.set_logger_level(logging.ERROR)
+    is_debug_mode = os.getenv('DEBUG_MODE') in ('True', 'true')
+    logger.setLevel(logging.DEBUG if is_debug_mode else logging.ERROR)
+    return logger
 
 class MyPwdContext(AbstractPwdContext):
     def __init__(self, pwd_context):
