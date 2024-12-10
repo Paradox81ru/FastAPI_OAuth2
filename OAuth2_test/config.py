@@ -23,7 +23,7 @@ def get_logger(logger_name: str) -> logging.Logger:
     logger_handler.setFormatter(logger_formatter)
     logger.addHandler(logger_handler)
     # self.set_logger_level(logging.ERROR)
-    is_debug_mode = os.getenv('DEBUG_MODE', False)
+    is_debug_mode = os.getenv('DEBUG_MODE') in ('True', 'true')
     logger.setLevel(logging.DEBUG if is_debug_mode else logging.ERROR)
     return logger
 
