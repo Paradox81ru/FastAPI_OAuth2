@@ -17,9 +17,9 @@ app.mount("/static", StaticFiles(directory="ui/static"), name="static")
 app.include_router(http_test.router, prefix="/api")
 app.include_router(html.router, prefix="")
 app.add_middleware(AuthenticationMiddleware, 
-                   backend=JWTTokenAuthBackend(settings.auth_server),
+                   backend=JWTTokenAuthBackend(settings.auth_server_host, settings.auth_server_port),
                    on_error=lambda conn, exc: JSONResponse({"detail": str(exc)}, status_code=401)
                    )
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host=settings.auth_test_host, port=settings.auth_test_port)

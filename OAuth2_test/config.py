@@ -10,7 +10,11 @@ templates = Jinja2Templates(directory="ui/jinja2")
 
 
 class Settings(BaseSettings):
-    auth_server: str = 'http://127.0.0.1:8001'
+    auth_test_host: str = "http://localhost"
+    auth_test_port: int = 8000
+
+    auth_server_host: str = "http://localhost"
+    auth_server_port: int = 8001
 
 
 # @lru_cache
