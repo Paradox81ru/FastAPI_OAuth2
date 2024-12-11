@@ -18,6 +18,7 @@ def get_logger(logger_name: str) -> logging.Logger:
     """ Возвращает логгер """
     logger = logging.getLogger(logger_name)
 
+    create_logs_dir()
     logger_handler = logging.FileHandler(LOGGER_FILENAME, mode='a')
     logger_formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
     logger_handler.setFormatter(logger_formatter)
@@ -26,6 +27,13 @@ def get_logger(logger_name: str) -> logging.Logger:
     is_debug_mode = os.getenv('DEBUG_MODE') in ('True', 'true')
     logger.setLevel(logging.DEBUG if is_debug_mode else logging.ERROR)
     return logger
+
+
+def create_logs_dir():
+    """ Проверяет наличие каталогов с логами, и если нет, создаёт ешл """
+    parent_dir = Path(LOGGER_FILENAME).parent
+    if not parent_dir.exists():
+        parent_dir.mkdir()
 
 
 class Settings(BaseSettings):
