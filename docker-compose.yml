@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  oauth2:
+    build: OAuth2/
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    ports:
+      - 8001:8001
+    
+
+  oauth2_test:
+    build: OAuth2_test/
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - 8000:8000
+    
+    network_mode: host
+    
+    depends_on:
+      - oauth2
