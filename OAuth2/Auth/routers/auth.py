@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from config import get_settings
 # from Auth.db.crud import add_jwt_token, remove_jwt_token
-from Auth.dependencies import get_db_session, validate_refresh_token
-from Auth.schemas import Token
+from Auth.dependencies import get_db_session, validate_refresh_token, get_current_user
+from Auth.schemas import Token, AnonymUser, User
 # from Auth.utils import authenticate_user, create_access_token, create_refresh_token
 from Auth.db.models.user_manager import UserManager
 from Auth.db.models.jwt_token_manager import JWTTokenManager
@@ -56,6 +56,10 @@ async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_ses
     refresh_token = jwt_token_manager.create_refresh_token(username)
     jwt_token_manager.remove_jwt_token(jti)
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
+
+@router.get("/get_user", response_model=User | AnonymUser)
+async def get_user(current_user: Annotated[User | AnonymUser, Depends(get_current_user)]):
+    return current_user
 
 # @router.get("/signup")
 # async def signup(db_session: Annotated[Session, Depends(get_db_session)]):
