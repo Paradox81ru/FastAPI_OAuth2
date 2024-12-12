@@ -2,13 +2,14 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PIP_ROOT_USER_ACTION=ignore
 
 # Хост микросервиса авторизации.
-ENV AUTH_SERVER_HOST="localhost"
+# ENV AUTH_SERVER_HOST="localhost"
 # Порт микросервиса авторизации.
-ENV AUTH_SERVER_PORT=8001
+# ENV AUTH_SERVER_PORT=8001
 
-ENV DEBUG_MODE="True"
+# ENV DEBUG_MODE="True"
 
 WORKDIR /app
 
