@@ -4,13 +4,15 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.authentication import AuthenticationMiddleware
 
-from config import get_settings
+from config import get_settings, get_logger
 from fastapi_site.middlewares.authentication import JWTTokenAuthBackend
 from fastapi_site.routers import http_test
 from ui.routes import html
 
 settings = get_settings()
+logger = get_logger("main")
 
+logger.debug("Start app")
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="ui/static"), name="static")
