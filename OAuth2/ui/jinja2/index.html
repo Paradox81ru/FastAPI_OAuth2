@@ -9,9 +9,12 @@
 <body>
     <div class="main-wrap m-4">
         <h1>Главная страница микросервиса авторизации OAuth2</h1>
+        <div id="alertDanger" class="alert alert-danger d-none" role="alert">
+            Ошибка:
+          </div>
         <div class="container-fluid">
             <div class="row">
-                <form id="formAuth" class="col-5" method="post">
+                <form id="formAuth" class="col-5">
                     <div class="mb-3 row">
                         <label for="username" class="col-2 col-form-label">Имя:</label>
                         <div class="col">
@@ -40,7 +43,7 @@
                             </div>
                         </div>    
                     </div>
-                    <button id="btnRequestTokens" type="submit" class="btn btn-primary"> Запрос токенов </button>
+                    <button id="btnRequestTokens" type="button" class="btn btn-primary"> Запрос токенов </button>
                 </form>
             </div>
             <div class="row">
@@ -53,7 +56,7 @@
                         <label for="token-refresh" class="col-2 col-form-label">Токен обновления:</label>
                         <textarea id="fldTokenRefresh" name="token-refresh" class="form-control"  rows="3"></textarea>
                     </div>
-                    <button id="btnTokenRefresh" type="button" class="btn btn-primary"> Запрос токенов </button>
+                    <button id="btnTokenRefresh" type="button" class="btn btn-primary"> Обновление токенов </button>
                 </form>
             </div>
         </div>
