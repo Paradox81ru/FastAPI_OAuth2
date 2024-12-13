@@ -7,22 +7,31 @@
     <link href="{{ url_for('static', path='/index.css') }}" rel="stylesheet">
 </head>
 <body>
-    <h1>Главная страница пороверки авторизации OAuth2</h1>
-    <div class="container-fluid">
-        <div class="mb-3 row">
-            <form method="post">
-                <div class="mb-3 row">
-                    <label for="token" class="col-sm-1 col-form-label">Токен доступа:</label>
-                    <textarea id="token" name="token" placeholder="token" class="form-control col-sm-1"  rows="3"></textarea>
+    <div class="main-wrap m-4">
+        <h1>Главная страница пороверки авторизации OAuth2</h1>
+        <div id="alertDanger" class="alert alert-danger d-none" role="alert">
+            Ошибка:
+          </div>
+        <div class="container-fluid">
+            <div class="mb-3 row">
+                <form method="post"class="col">
+                    <div class="mb-3 row">
+                        <div class="col">
+                            <label for="token" class="col-2 col-form-label">Токен доступа:</label>
+                            <textarea id="token" name="token" placeholder="token" class="form-control"  rows="3"></textarea>
+                        </div>
+                    </div>
+                    <button id="btn_request" type="button" class="btn btn-primary"> Получить информацию пользователя </button>
+                </form>
+            </div>
+            <div class="mb-3 row">
+                <div class="col">
+                    <label for="token" class="col-2 col-form-label">Информация о пользователе:</label>
+                    <textarea id="user_info" name="token" class="form-control" rows="15"></textarea>
                 </div>
-                <button id="btn_request" type="button" class="btn btn-primary"> Получить информацию пользователя </button>
-            </form>
+            </div>
         </div>
-        <div class="mb-3 row">
-            <label for="token" class="form-label">Информация о пользователе:</label>
-            <textarea id="user_info" name="token" class="form-control col-md-4" rows="15"></textarea>
-        </div>
+        <script src="{{ url_for('static', path='/index.js') }}"></script>
     </div>
-    <script src="{{ url_for('static', path='/index.js') }}"></script>
 </body>
 </html>

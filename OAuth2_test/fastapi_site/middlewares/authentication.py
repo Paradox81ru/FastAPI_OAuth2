@@ -26,7 +26,7 @@ class JWTTokenAuthBackend(AuthenticationBackend):
         return AuthCredentials(['aaaa']), user
 
     async def request_user(self, bearer_authorization):
-        api_url = f"{self._auth_server}/api/test/get_user"
+        api_url = f"{self._auth_server}/api/oauth/get_user"
         async with httpx.AsyncClient() as client:
             response = await client.get(api_url, headers={"Authorization": bearer_authorization})
             if response.status_code == 401:
