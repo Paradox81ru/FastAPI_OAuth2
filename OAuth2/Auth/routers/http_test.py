@@ -11,10 +11,6 @@ router = APIRouter(
     prefix='/test',
     tags=['test'])
 
-@router.get("/get_user", response_model=User | AnonymUser)
-async def get_user(current_user: Annotated[User | AnonymUser, Depends(get_current_user)]):
-    return current_user
-
 
 @router.get("/users/me", dependencies=[Security(check_scope, scopes=['me'])])
 async def reader_users_me(current_user: Annotated[User, Depends(get_current_user)]):
