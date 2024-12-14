@@ -22,8 +22,8 @@ class JWTTokenAuthBackend(AuthenticationBackend):
         scheme, _ = get_authorization_scheme_param(bearer_authorization)
         if scheme.lower() != "bearer":
             raise AuthenticationError("Not bearer authentication")
-        user = await self.request_user(bearer_authorization)
-        return AuthCredentials(['aaaa']), user
+        user, scope = await self.request_user(bearer_authorization)
+        return AuthCredentials(scope), user
 
     async def request_user(self, bearer_authorization):
         api_url = f"{self._auth_server}/api/oauth/get_user"
@@ -32,6 +32,6 @@ class JWTTokenAuthBackend(AuthenticationBackend):
             if response.status_code == 401:
                 error_msg = response.json()['detail']
                 raise AuthenticationError(error_msg)
-            user = response.json()
-            return User(**user)
-        return AnonymUser()
+            user, scopes = response.json()
+            return User(**user), scopes
+        return AnonymUser(), None

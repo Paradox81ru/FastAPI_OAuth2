@@ -15,10 +15,17 @@ class TestPermissions:
         """ Возвращает данные для авторизации пользователя """
         get_password = {
             'Admin': api_settings.init_admin_password.get_secret_value,
-            'Paradox': api_settings.init_director_password.get_secret_value,
+            'Director': api_settings.init_director_password.get_secret_value,
             'User': api_settings.init_user_password.get_secret_value
         }
-        return {"username": user, 'password': get_password[user]()}
+
+        get_username = {
+            'Admin': 'Admin',
+            'Director': api_settings.init_director_login,
+            'User': api_settings.init_user_login
+        }
+
+        return {"username": get_username[user], 'password': get_password[user]()}
 
     @classmethod
     def _get_response_admin_json(cls, client: TestClient, api_settings):
@@ -29,7 +36,7 @@ class TestPermissions:
     @classmethod
     def _get_response_director_json(cls, client: TestClient, api_settings):
         """ Возвращает JSON ответ запрашиваемого токена для директора """
-        response = client.post("/api/oauth/token", data=cls._get_user_data('Paradox', api_settings))
+        response = client.post("/api/oauth/token", data=cls._get_user_data('Director', api_settings))
         return cls._get_response_json(response)
 
     @classmethod
@@ -84,7 +91,7 @@ class TestPermissions:
         # Только авторизованный пользователь директором
         response = client.get("/api/test/authorized_user", headers=self._get_token_headers(response_director_json))
         assert response.status_code == 200
-        assert response.json() == {"status": "ok", "username": "Paradox",  "role": "director" }
+        assert response.json() == {"status": "ok", "username": api_settings.init_director_login,  "role": "director" }
 
         # Запрос токена на пользователя
         response_user_json = self._get_response_user_json(client, api_settings)
@@ -92,7 +99,7 @@ class TestPermissions:
         # Только авторизованный пользователь пользователем
         response = client.get("/api/test/authorized_user", headers=self._get_token_headers(response_user_json))
         assert response.status_code == 200
-        assert response.json() == {"status": "ok", "username": "User",  "role": "visitor" }
+        assert response.json() == {"status": "ok", "username": api_settings.init_user_login,  "role": "visitor" }
 
     def test_not_authorized_user(self, client: TestClient, api_settings):
         # Только не авторизованный пользователь без авторизации
@@ -106,7 +113,7 @@ class TestPermissions:
         # Только не авторизованный пользователь директором
         response = client.get("/api/test/not_authorized_user", headers=self._get_token_headers(response_director_json))
         assert response.status_code == 401
-        assert response.json() == {"detail": "Already authorized username 'Paradox' role director" }
+        assert response.json() == {f"detail": f"Already authorized username '{api_settings.init_director_login}' role director" }
 
         # Запрос токена на пользователя
         response_user_json = self._get_response_user_json(client, api_settings)
@@ -114,4 +121,4 @@ class TestPermissions:
         # Только не авторизованный пользователь пользователем
         response = client.get("/api/test/not_authorized_user", headers=self._get_token_headers(response_user_json))
         assert response.status_code == 401
-        assert response.json() == {"detail": "Already authorized username 'User' role visitor" }
+        assert response.json() == {f"detail": f"Already authorized username '{api_settings.init_user_login}' role visitor" }

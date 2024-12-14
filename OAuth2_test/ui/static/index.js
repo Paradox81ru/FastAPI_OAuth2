@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const HTML_CLASS_HIDDEN = "d-none";
     const host = window.location.origin;
 
     const tokenField = document.getElementById("token");
@@ -7,36 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Назначение обработчика кнопке щапроса информаци о пользователе
     requestBtn.addEventListener("click", getUserRequest);
 
-    // function getToken() {
-    //     return tokenField.value
-    // }
-
-    // function requestBtnHandler() {
-    //     /** Обработчик события для внопки запроса информации о пользователе */
-    //     const host = window.location.origin;
-    //     const api = "/api/get_user"
-    //     const url=`${host}${api}`;
-    //     const otherParam = {
-    //         headers: {
-    //             "content-type": "application/json; charset=UTF-8",
-    //             "Authorization": `bearer ${getToken()}`
-    //         },
-    //         method: "GET",
-    //     };
-
-    //     fetch(url, otherParam)
-    //         .then(data => data.json())
-    //         .then(response => {
-    //             userInfoField.value = convertResponse(response);
-    //         })
-    //         .catch(error => userInfoField.value = error);
-    // }
-
     /**
      * Запрашивает пользователя по указанному токену
      */
     function getUserRequest() {
-        const api = "/api/get_user"
+        const api = "/api/get_user";
         const tokenRefresh = `bearer ${tokenField.value}`;
         const headers = {Authorization: tokenRefresh};
 
@@ -45,11 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Функция обработки успешного получения токенов
-     * @param {У} data 
+     * @param {*} data 
      */
         function successfulResponse(data) {
             hideAllertDanger();
-            userInfoField.value = convertResponse(response);
+            fillUserFields(data);
         }
      
     
@@ -59,29 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
          * @param {*} response 
          */
         function errorResponse(statusText, statusCode, response) {
-            clearTokenFields();
+            clearUserFields();
             if ([400, 401].indexOf(statusCode) != -1)
                 response.then(responsen_json => {
-                    showAlertDanger(`Error: ${statusText} ${responsen_json['detail']}`);
+                    showAlertDanger(`Error: ${statusText}. ${responsen_json['detail']}`);
             });
-                // showAlertDanger(`Error: ${statusText} ${responsen['detail']}`);
             else {
                 showAlertDanger(`Error: ${statusCode} - ${statusText}`);
             }
         }
-
-    /**
-     * Преобразует ответ
-     * @param {*} response 
-     * @returns 
-     */
-    function convertResponse(response) {
-        let result = "";
-        for (key in response) {
-            result += `${key}: ${response[key]}\n`;
-        }
-        return result;
-    }
 
     /**
      * Отображет сообшение об ошибке
@@ -101,9 +63,52 @@ document.addEventListener('DOMContentLoaded', function() {
             alertDanger.classList.add(HTML_CLASS_HIDDEN);
             alertDanger.textContent = "";
         }
+    }
 
+    /**
+     * Заполняет поле пользователя
+     * @param {*} response ответ от сервера
+     */
+    function fillUserFields(response){
+        userInfoField.value = convertResponseToUser(response);
+    }
+
+    /**
+     * Преобразует ответ в данные о пользователе
+     * @param {*} response 
+     * @returns 
+     */
+        function convertResponseToUser(response) {
+            user = response[0];
+            scopes = response[1]
+            let result = "";
+            for (prop in user) {
+                result += `${prop}: ${user[prop]}\n`;
+            }
+            if (scopes.length > 0)
+                result += `scopes: ${scopes.join(", ")}\n`;
+            return result;
+        }
+
+    /**
+    * Очищает поле пользователя
+    */
+    function clearUserFields() {
+        userInfoField.value = "";
     }
 });
+
+/**
+ * Проверка на пустой объект
+ * @param obj
+ * @returns {boolean}
+ */
+function isObjectEmpty(obj) {
+    for (let key in obj)
+        if (obj.hasOwnProperty(key))
+            return false;
+    return true;
+}
 
 /**
  * API запрос
@@ -152,6 +157,7 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
        failedStatusCallback(error.message, error.statusCode, error.response)
     })
 }
+
 
 class StatusError extends Error {
     constructor(message, statusCode, response) {

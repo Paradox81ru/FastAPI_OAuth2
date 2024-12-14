@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from config import get_settings
 # from Auth.db.crud import add_jwt_token, remove_jwt_token
-from Auth.dependencies import get_db_session, validate_refresh_token, get_current_user
+from Auth.dependencies import get_db_session, validate_refresh_token, get_current_user_and_scope
 from Auth.schemas import Token, User, AnonymUser
 # from Auth.utils import authenticate_user, create_access_token, create_refresh_token
 from Auth.db.models.user_manager import UserManager
@@ -62,7 +62,7 @@ async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_ses
 
 
 @router.get("/get_user", response_model=tuple[User, list] | tuple[AnonymUser, None])
-async def get_user(current_user: Annotated[tuple[User, list] | tuple[AnonymUser, None], Depends(get_current_user)]):
+async def get_user(current_user: Annotated[tuple[User, list] | tuple[AnonymUser, None], Depends(get_current_user_and_scope)]):
     """
     Возвращает пользователя и его scope, по переданному токену доступа
     :param current_user:

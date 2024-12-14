@@ -82,11 +82,11 @@ async def validate_refresh_token(session: Annotated[Session, Depends(get_db_sess
     return _validate_token(session, token, JWTTokenType.REFRESH)
 
 
-async def get_current_user(session: Annotated[Session, Depends(get_db_session)],
-                           payload: Annotated[dict, Depends(validate_access_token)]) -> (BaseUser, list):
+async def get_current_user_and_scope(session: Annotated[Session, Depends(get_db_session)],
+                                     payload: Annotated[dict, Depends(validate_access_token)]) -> (BaseUser, list):
     """
     Возвращает пользователя по токену доступа, или анонимного пользователя,
-    если токена доступа не было предоставлено вообще
+    если токена доступа не было предоставлено вообще. И его scope при авторизации.
     :param session: сессия базы данных
     :param payload: содержимое токена
     :return: Пользователя и его scope (сфера деятельности)
@@ -126,33 +126,35 @@ def check_scope(payload: Annotated[dict, Depends(validate_access_token)], securi
 def check_role(allowed_roles: tuple[str, ...] | list[str] | list[UserRoles]):
     """
     Проверяет роль пользователя
-    :param allowed_roles: ролли для проверки
+    :param allowed_roles: роли для проверки
     :return:
     :raises AuthenticateException: не достаточно прав
     """
-    def _check_role(user: Annotated[User, Depends(get_current_user)]):
+    def _check_role(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
+        user, scope = user_and_scope
         if user.role in allowed_roles:
             return True
         raise AuthenticateException("Not enough permissions", "Bearer")
     return _check_role
 
-
-def is_auth(user: Annotated[User, Depends(get_current_user)]):
+def is_auth(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
     """
     Проверят на авторизованного пользователя
-    :param user: текущий пользователь
+    :param user_and_scope: текущий пользователь и его scope
      :raises AuthenticateException: не авторизован
     """
+    user, scope = user_and_scope
     if isinstance(user, AnonymUser):
         raise AuthenticateException("Not authorized", "Bearer")
 
 
-def is_not_auth(user: Annotated[User, Depends(get_current_user)]):
+def is_not_auth(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
     """
     Проверят на неавторизованного пользователя
-    :param user: текущий пользователь
+    :param user_and_scope: текущий пользователь и его scope
     :return:
     """
+    user, scope = user_and_scope
     if isinstance(user, User):
         raise AuthenticateException(f"Already authorized username '{user.username}' role {user.get_role()}",
                                     "Bearer")

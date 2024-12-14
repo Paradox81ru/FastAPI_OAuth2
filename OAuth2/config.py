@@ -65,10 +65,22 @@ class Settings(BaseSettings):
     refresh_token_expire_minutes: int = 30
     db_connect_str: str = 'sqlite:///db.sqlite3'
 
-    init_admin_password: SecretStr = "Cucumber_123"
-    init_system_password: SecretStr = "Cucumber_123"
-    init_director_password: SecretStr = "Cucumber_123"
-    init_user_password: SecretStr = "Cucumber_123"
+
+    init_admin_email: str = 'admin@mail.com'
+    init_system_email: str = 'system@mail.com'
+    init_director_login: str = 'Director'
+    init_director_name: str = 'Boss'
+    init_director_lastname: str = 'Super'
+    init_director_email: str = 'boss@mail.com'
+    init_user_login: str = 'User'
+    init_user_name: str = ''
+    init_user_lastname: str = ''
+    init_user_email: str = 'user@mail.com'
+
+    init_admin_password: SecretStr = "Password_123"
+    init_system_password: SecretStr = "Password_123"
+    init_director_password: SecretStr = "Password_123"
+    init_user_password: SecretStr = "Password_123"
 
 
 def get_pwd_context():

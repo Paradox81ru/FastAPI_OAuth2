@@ -22,10 +22,11 @@ router = APIRouter(
 #     return AnonymUser()
 
 
-@router.get("/get_user")
+@router.get("/get_user", response_model=tuple[User, list] | tuple [AnonymUser, list])
 async def my_test(request: Request):
     user = request.user
-    return user
+    scopes = request.auth.scopes
+    return user, scopes
 
 
 # @router.get("/users/me", dependencies=[Security(check_scope, scopes=['me'])])
