@@ -71,7 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function tokenRefreshRequest() {
         const api = "/api/oauth/token-refresh";
         const tokenRefresh = `bearer ${fieldTokenRefresh.value}`;
-        const headers = {Authorization: tokenRefresh};
+        const expiredToken = fieldTokenAccess.value;
+        const headers = {Authorization: tokenRefresh, expiredToken: expiredToken};
 
         apiRequest("POST", host, api, successfulResponse, errorResponse, headers, {});
     }

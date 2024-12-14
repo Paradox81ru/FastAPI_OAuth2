@@ -36,31 +36,38 @@ async def login_for_access_token(db_session: Annotated[Session, Depends(get_db_s
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     # print(request)
     access_token = jwt_token_manager.create_access_token(user.username, data={'scopes': form_data.scopes})
-    refresh_token = jwt_token_manager.create_refresh_token(user.username)
+    refresh_token = jwt_token_manager.create_refresh_token(user.username, data={'scopes': form_data.scopes})
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 
 
 @router.post("/token-refresh")
-async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_session)], payload: Annotated[dict, Depends(validate_refresh_token)]):
+async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_session)],
+                               payload: Annotated[dict, Depends(validate_refresh_token)]):
     """
     Обновление токена доступа
     :param db_session: сессия базы данных
     :param payload: данные из полученного
     :return:
     """
+    # scopes: Annotated[list['str'], Depends(get_scopes_expired_token)],
     jwt_token_manager = JWTTokenManager(db_session)
     jti = payload.get('jti')
     username = payload.get('sub')
     scopes = payload.get('scopes')
 
     access_token = jwt_token_manager.create_access_token(username, data={'scopes': scopes})
-    refresh_token = jwt_token_manager.create_refresh_token(username)
+    refresh_token = jwt_token_manager.create_refresh_token(username, data={'scopes': scopes})
     jwt_token_manager.remove_jwt_token(jti)
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 
 
-@router.get("/get_user", response_model=User | AnonymUser)
-async def get_user(current_user: Annotated[User | AnonymUser, Depends(get_current_user)]):
+@router.get("/get_user", response_model=tuple[User, list] | tuple[AnonymUser, None])
+async def get_user(current_user: Annotated[tuple[User, list] | tuple[AnonymUser, None], Depends(get_current_user)]):
+    """
+    Возвращает пользователя и его scope, по переданному токену доступа
+    :param current_user:
+    :return: кортеж, пользователь и его scope
+    """
     return current_user
 
 # @router.get("/signup")

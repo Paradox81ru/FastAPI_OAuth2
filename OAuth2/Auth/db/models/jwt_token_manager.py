@@ -27,14 +27,15 @@ class JWTTokenManager(BaseManager):
         self.add_jwt_token(jti, expire, username)
         return token
 
-    def create_refresh_token(self, username) -> str:
+    def create_refresh_token(self, username, data: dict) -> str:
         """
         Создаёт токен обновления
-        :param username: имя пользователя, на которого выписывается токен обновления
-        :return : Токен обновления
+        :param username: Имя пользователя, на которого выписывается токен обновления.
+        :param data: Словарь с данными, которые нужно добавить в токен обновления.
+        :return : Токен обновления.
         """
         token_expire = timedelta(minutes=settings.refresh_token_expire_minutes)
-        jti, expire, token = self._sign_token(JWTTokenType.REFRESH, username, {}, token_expire)
+        jti, expire, token = self._sign_token(JWTTokenType.REFRESH, username, data, token_expire)
         self.add_jwt_token(jti, expire, username)
         return token
 

@@ -9,7 +9,7 @@ from typing_extensions import Annotated
 from config import get_settings, oauth2_scheme
 from Auth.db.db_connection import db_session
 from Auth.exceptions import AuthenticateException
-from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles
+from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles, BaseUser
 from Auth.db.models.user_manager import UserManager
 from Auth.db.models.jwt_token_manager import JWTTokenManager
 
@@ -83,24 +83,26 @@ async def validate_refresh_token(session: Annotated[Session, Depends(get_db_sess
 
 
 async def get_current_user(session: Annotated[Session, Depends(get_db_session)],
-                           payload: Annotated[dict, Depends(validate_access_token)]):
+                           payload: Annotated[dict, Depends(validate_access_token)]) -> (BaseUser, list):
     """
     Возвращает пользователя по токену доступа, или анонимного пользователя,
     если токена доступа не было предоставлено вообще
     :param session: сессия базы данных
     :param payload: содержимое токена
-    :return:
+    :return: Пользователя и его scope (сфера деятельности)
+    :raises AuthenticateException: Не удалось подтвердить учётные данные; Пользователь не доступен.
     """
     user_manager = UserManager(session)
     if payload is None:
-        return AnonymUser()
+        return AnonymUser(), None
     username: str = payload.get('sub')
+    scopes = payload.get('scopes')
     user: User = user_manager.get_user_schema_by_username(username).to_user()
     if not user:
         raise AuthenticateException("Could not validate credentials")
     if user.status != UerStatus.ACTIVE:
         raise AuthenticateException("Inactive user")
-    return user
+    return user, scopes
 
 
 def check_scope(payload: Annotated[dict, Depends(validate_access_token)], security_scopes: SecurityScopes):
