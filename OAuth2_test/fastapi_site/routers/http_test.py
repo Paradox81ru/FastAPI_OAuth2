@@ -1,12 +1,13 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Security
 
+from fastapi_site.dependencies import check_scope
 # from fastapi_site.dependencies import validate_jwt_token
 from fastapi_site.schemas import AnonymUser, User
 import httpx
 
 router = APIRouter(
-    prefix="",
+    prefix="/test",
     tags=['test']
 )
 
@@ -21,17 +22,18 @@ router = APIRouter(
 #         return User(**user)
 #     return AnonymUser()
 
-
 @router.get("/get_user", response_model=tuple[User, list] | tuple [AnonymUser, list])
-async def my_test(request: Request):
+async def get_user(request: Request):
+    """ Получает текущего пользователя и его scope """
     user = request.user
     scopes = request.auth.scopes
     return user, scopes
 
-
-# @router.get("/users/me", dependencies=[Security(check_scope, scopes=['me'])])
-# async def reader_users_me(current_user: Annotated[User, Depends(get_current_user)]):
-#     return  {"status": "ok", "username": current_user.username, "role": current_user.get_role() }
+@router.get("/scope/me", dependencies=[Security(check_scope, scopes=['me'])])
+async def reader_users_me(request: Request):
+    user = request.user
+    scopes = request.auth.scopes
+    return  {"status": "ok", "username": user.username, "role": user.get_role(), "scopes": scopes }
 
 
 # @router.get("/users/me/items", dependencies=[Security(check_scope, scopes=['me', 'items'])])

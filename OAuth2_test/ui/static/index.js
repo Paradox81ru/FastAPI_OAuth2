@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Запрашивает пользователя по указанному токену
      */
     function getUserRequest() {
-        const api = "/api/get_user";
+        const api = "/api/test/get_user";
         const tokenRefresh = `bearer ${tokenField.value}`;
         const headers = {Authorization: tokenRefresh};
 
