@@ -1,7 +1,8 @@
+import pytest
 from starlette.testclient import TestClient
 
-from tests.conftest import UserType, UserAuth, UserRoles, UerStatus, get_access_token
-import httpx
+from fastapi_site.schemas import UserRoles, UerStatus
+from tests.conftest import UserType, get_access_token
 
 """ 
 !!!!                                                ВАЖНО                                                       !!!! 
@@ -12,24 +13,32 @@ import httpx
 """
 
 class TestPermissions:
-    def test_get_user(self, client: TestClient, oauth_server, users_data, api_settings, oauth2_settings):
+
+    @pytest.mark.parametrize('user_type, role', [
+        [UserType.USER, UserRoles.visitor],
+        [UserType.SYSTEM, UserRoles.system],
+        [UserType.DIRECTOR, UserRoles.director],
+        [UserType.ADMIN, UserRoles.admin]
+    ], ids=("User", "System", "Director", "Admin"))
+    def test_get_user(self, client: TestClient, oauth_server, users_data, api_settings, oauth2_settings, user_type, role):
         """ Поверяет получение пользователя """
-        token = get_access_token(users_data[UserType.USER], oauth_server, [])
+        user_auth =users_data[user_type]
+        token = get_access_token(user_auth, oauth_server, [])
         headers = {'Authorization': f"Bearer {token}"}
         response = client.get("/api/test/get_user", headers=headers)
         assert response.status_code == 200
         user, scopes = response.json()
-        assert user['username'] == users_data[UserType.USER].username
-        assert user['role'] == UserRoles.visitor
+        assert user['username'] == user_auth.username
+        assert user['role'] == role
         assert user['status'] == UerStatus.ACTIVE
 
-    def test_get_anonym_user(self, client: TestClient, oauth_server, users_data, api_settings, oauth2_settings):
-        """ Поверяет получение пользователя """
+    def test_get_anonym_user(self, client: TestClient):
+        """ Поверяет получение анонимного пользователя """
         response = client.get("/api/test/get_user")
         assert response.status_code == 200
         user, scopes = response.json()
         assert user['username'] == 'Anonym'
-        assert user['role'] == UserRoles.visitor
+        assert user['role'] == UserRoles.guest
         assert user['status'] == UerStatus.ACTIVE
 
     def test_get_user_damaged_token_negative(self, client: TestClient, oauth_server, users_data, api_settings, oauth2_settings):
@@ -43,7 +52,7 @@ class TestPermissions:
         assert error == "The JWT token is damaged"
 
     def test_get_user_not_bearer_negative(self, client: TestClient, oauth_server, users_data, api_settings, oauth2_settings):
-        """ Поверяет попытку получение пользователя с неправильной авторизацией """
+        """ Поверяет попытку получение пользователя с неправильным заголовком авторизации """
         # В заголовке неправильно указан тип авторизации
         token = get_access_token(users_data[UserType.USER], oauth_server, []) + "!"
         headers = {'Authorization': f"Beare {token}"}

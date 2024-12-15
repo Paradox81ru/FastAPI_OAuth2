@@ -23,24 +23,8 @@ class UserType(StrEnum):
     SYSTEM = 'System'
     DIRECTOR = 'Director'
     USER = "User"
+    ANONYM = "Anonym"
 
-class UerStatus(IntEnum):
-    """ Перечисление статусов пользователей """
-    DELETED = 1
-    BLOCKED = 2
-    ACTIVE = 3
-
-class UserRoles(IntEnum):
-    """ Перечисление ролей пользователей """
-    system = 1
-    super_admin = 2
-    admin = 3
-    admin_assistant = 4
-    director = 5
-    director_assistant = 6
-    employee = 7
-    visitor_vip = 8
-    visitor = 9
 
 @dataclass
 class UserAuth:
@@ -80,7 +64,7 @@ def client():
 
 @pytest.fixture(scope='session')
 def api_settings():
-    """ Возвращает класс настроек oauth2_test """
+    """ Класс настроек oauth2_test """
     return settings
 
 @pytest.fixture()
@@ -93,13 +77,13 @@ def oauth2_settings():
 
 @pytest.fixture()
 def users_data(oauth2_settings) -> dict[UserType, UserAuth]:
-    """ Возвращает данные для авторизации пользователя (логин и пароль) """
+    """ Данные для авторизации пользователя (логин и пароль) """
     users_data = {UserType.ADMIN: UserAuth(
                       UserType.ADMIN, oauth2_settings.init_admin_password.get_secret_value()),
                   UserType.SYSTEM: UserAuth(
                       UserType.SYSTEM, oauth2_settings.init_system_password.get_secret_value()),
                   UserType.DIRECTOR: UserAuth(
-                      oauth2_settings.init_director_name,
+                      oauth2_settings.init_director_login,
                       oauth2_settings.init_director_password.get_secret_value()),
                   UserType.USER: UserAuth(
                       oauth2_settings.init_user_login,
