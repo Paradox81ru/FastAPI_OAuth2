@@ -74,6 +74,7 @@ class BaseUser(BaseModel):
         return f"{self.__class__.__name__}({', '.join(attrs)})"
 
 class AnonymUser(BaseUser):
+    """ Анонимный пользователь """
     username: str = 'Anonym'
     role: UserRoles = UserRoles.guest
     status: UerStatus = UerStatus.ACTIVE

@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const HTML_CLASS_HIDDEN = "d-none";
     const host = window.location.origin;
 
     const formAuth = document.getElementById("formAuth");
@@ -12,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const fieldTokenAccess = document.getElementById("fldTokenAccess");
     const fieldTokenRefresh = document.getElementById("fldTokenRefresh");
     const btnTokenRefresh = document.getElementById("btnTokenRefresh");
-    const HTML_CLASS_HIDDEN = "d-none";
 
     btnRequestTokens.addEventListener("click", requestTokenHandler);
     btnTokenRefresh.addEventListener('click', requestRefreshTokenHandler);
@@ -38,9 +38,31 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function authorizationRequest() {
         const api = "/api/oauth/token";
-        const formData = new FormData(formAuth);
+        const formData = getFormData();
 
         apiRequest("POST", host, api, successfulResponse, errorResponse, {}, formData);
+    }
+
+    function getFormData() {
+        let formData = new FormData(formAuth);
+        let scopes = [];
+        let forDelete = []
+        // Проходит по всем полям формы,
+        for (let [name, value] of formData) {
+            if (name.startsWith('scope')) {
+                // если есть Scope, то добавляет его в общий массив scopes,
+                scopes.push(value);
+                // а само поле добавляется в массив для дальнейшего удаления его из формы.
+                forDelete.push(name)
+            }
+        }
+        // Удаление ненужных scope полей из формы.
+        for (item of forDelete)
+            formData.delete(item);
+        
+        // Добавление в форму нового поля, со списком значений scope разделённых пробелом.
+        formData.set('scope', scopes.join(' '));
+        return formData;
     }
 
     /**
@@ -49,14 +71,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function tokenRefreshRequest() {
         const api = "/api/oauth/token-refresh";
         const tokenRefresh = `bearer ${fieldTokenRefresh.value}`;
-        const headers = {Authorization: tokenRefresh};
+        const expiredToken = fieldTokenAccess.value;
+        const headers = {Authorization: tokenRefresh, expiredToken: expiredToken};
 
         apiRequest("POST", host, api, successfulResponse, errorResponse, headers, {});
     }
 
     /**
      * Функция обработки успешного получения токенов
-     * @param {У} data 
+     * @param {*} data 
      */
     function successfulResponse(data) {
         hideAllertDanger();
@@ -73,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTokenFields();
         if ([400, 401].indexOf(statusCode) != -1)
             response.then(responsen_json => {
-                showAlertDanger(`Error: ${statusText} ${responsen_json['detail']}`);
+                showAlertDanger(`Error: ${statusText}. ${responsen_json['detail']}`);
         });
             // showAlertDanger(`Error: ${statusText} ${responsen['detail']}`);
         else {
@@ -203,12 +226,3 @@ class StatusError extends Error {
         this.response = response;
     }
 }
-
-// class ResonseError extends Error {
-//     constructor(message, statusCode, resopnse) {
-//         super(message);
-//         this.name = "StatusError";
-//         this.statusCode = statusCode;
-//         this.response = resopnse;
-//     }
-// }
