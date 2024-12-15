@@ -42,6 +42,20 @@ async def read_only_director(user_and_scope: Annotated[tuple[User, list], Depend
     return {"status": "ok", "role": current_user.get_role()}
 
 
+@router.get("/only_admin_or_director", dependencies=[Depends(check_role([UserRoles.admin, UserRoles.director]))])
+async def read_only_admin_or_director(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
+    """ Возвращает текущего пользователя, только если он имеет роль администратора или директора """
+    current_user, scope = user_and_scope
+    return {"status": "ok", "username": current_user.username, "role": current_user.get_role()}
+
+
+@router.get("/only_user", dependencies=[Depends(check_role([UserRoles.visitor]))])
+async def read_only_user(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
+    """ Возвращает текущего пользователя, только если он имеет роль посетителя """
+    current_user, scope = user_and_scope
+    return {"status": "ok", "username": current_user.username, "role": current_user.get_role()}
+
+
 @router.get("/authorized_user", dependencies=[Depends(is_auth)])
 async def read_authorized_user(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
     current_user, scope = user_and_scope
@@ -49,6 +63,6 @@ async def read_authorized_user(user_and_scope: Annotated[tuple[User, list], Depe
 
 
 @router.get("/not_authorized_user", dependencies=[Depends(is_not_auth)])
-async def read_authorized_user(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
+async def read_not_authorized_user(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
     current_user, scope = user_and_scope
     return {"status": "ok", "role": current_user.get_role()}
