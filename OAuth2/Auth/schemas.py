@@ -44,6 +44,7 @@ class UserRoles(MyEnum):
     employee = 7
     visitor_vip = 8
     visitor = 9
+    guest = 10
 
 
 class JWTTokenType(StrEnum):
@@ -74,7 +75,7 @@ class BaseUser(BaseModel):
 
 class AnonymUser(BaseUser):
     username: str = 'Anonym'
-    role: UserRoles = UserRoles.visitor
+    role: UserRoles = UserRoles.guest
     status: UerStatus = UerStatus.ACTIVE
 
 class User(BaseUser):
