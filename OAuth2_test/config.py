@@ -28,6 +28,12 @@ def get_logger(logger_name: str) -> logging.Logger:
     logger.setLevel(logging.DEBUG if is_debug_mode else logging.ERROR)
     return logger
 
+def create_logs_dir():
+    """ Проверяет наличие каталогов с логами, и если нет, создаёт ешл """
+    parent_dir = Path(LOGGER_FILENAME).parent
+    if not parent_dir.exists():
+        parent_dir.mkdir()
+
 
 def create_logs_dir():
     """ Проверяет наличие каталогов с логами, и если нет, создаёт ешл """

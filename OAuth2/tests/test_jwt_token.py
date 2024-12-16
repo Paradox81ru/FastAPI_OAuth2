@@ -4,10 +4,11 @@ from sqlalchemy import select, func
 from Auth.db.models.user import User
 from Auth.db.models.user_manager import UserManager
 from Auth.db.models.jwt_token import JWTToken
-from Auth.db.models.jwt_token_manager import JWTTokenManager
+from Auth.db.models.jwt_token_manager import JWTTokenManager, settings
 from sqlalchemy.orm import Session
 import uuid
 
+from config import Settings
 from tests.conftest import db_session
 
 
@@ -29,11 +30,11 @@ class TestJwtToken:
         assert jwt_token_manger.has_jwt_token(jti)
         return jti
 
-    def test_jwt_token(self, db_session: Session):
+    def test_jwt_token(self, db_session: Session, api_settings: Settings):
         """ Тестирует создание, поиск и удаление JWT токенов """
         jwt_token_manager = JWTTokenManager(db_session)
         user_manager = UserManager(db_session)
-        username: final = 'User'
+        username: final = api_settings.init_user_login
 
         jti = uuid.uuid4()
         assert not jwt_token_manager.has_jwt_token(jti)
@@ -56,10 +57,10 @@ class TestJwtToken:
         assert len(user.jwt_tokens) == 0
 
 
-    def test_remove_expire_tokens(self, db_session: Session):
+    def test_remove_expire_tokens(self, db_session: Session, api_settings: Settings):
         """ Тестирует удаление просроченных JWT токенов """
         jwt_token_manger = JWTTokenManager(db_session)
-        username: final = 'Paradox'
+        username: final = settings.init_director_login
 
         self._add_jwt_token(db_session, -2, username)
         self._add_jwt_token(db_session, -1, username)
