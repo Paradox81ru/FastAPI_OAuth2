@@ -12,6 +12,18 @@ services:
       REFRESH_TOKEN_EXPIRE_MINUTES: 60
       # Соединение с базой данных.
       DB_CONNECT_STR: "sqlite:///db.sqlite3"
+      
+      # Данные для инициализации пользователей в бае данных.
+      INIT_ADMIN_EMAIL: "admin@yandex.ru"
+      INIT_SYSTEM_EMAIL: "system@gmail.com"
+      INIT_DIRECTOR_LOGIN: "Boroda"
+      INIT_DIRECTOR_NAME: "Фёдор"
+      INIT_DIRECTOR_LASTNAME: "Петрович"
+      INIT_DIRECTOR_EMAIL: "boroda@mail.ru"
+      INIT_USER_LOGIN: "Pups"
+      INIT_USER_NAME: "Малой"
+      INIT_USER_LASTNAME: ""
+      INIT_USER_EMAIL: "pups@hotmail.com"
 
       # Пароли для пользователей при инициализации базы данных.
       INIT_ADMIN_PASSWORD: "Pups_555"

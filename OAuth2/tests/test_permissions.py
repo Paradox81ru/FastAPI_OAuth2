@@ -1,5 +1,7 @@
 from fastapi import Response
 from fastapi.testclient import TestClient
+
+from Auth.schemas import UserRoles
 from config import Settings
 
 
@@ -105,7 +107,7 @@ class TestPermissions:
         # Только не авторизованный пользователь без авторизации
         response = client.get("/api/test/not_authorized_user")
         assert response.status_code == 200
-        assert response.json() == {"status": "ok", "role": "visitor" }
+        assert response.json() == {"status": "ok", "role": UserRoles.guest.name }
 
         # Запрос токена на директора
         response_director_json = self._get_response_director_json(client, api_settings)

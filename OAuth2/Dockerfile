@@ -11,6 +11,19 @@ ENV PIP_ROOT_USER_ACTION=ignore
 # Соединение с базой данных.
 # ENV DB_CONNECT_STR="sqlite:///db.sqlite3"
 
+# Данные для инициализации пользователей в бае данных.
+# ENV INIT_ADMIN_EMAIL="admin@yandex.ru"
+# ENV INIT_SYSTEM_EMAIL="system@gmail.com"
+# ENV INIT_DIRECTOR_LOGIN="Boroda"
+# ENV INIT_DIRECTOR_NAME="Фёдор"
+# ENV INIT_DIRECTOR_LASTNAME="Петрович"
+# ENV INIT_DIRECTOR_EMAIL="boroda@mail.ru"
+# ENV INIT_USER_LOGIN="Pups"
+# ENV INIT_USER_NAME="Малой"
+# ENV INIT_USER_LASTNAME=""
+# ENV INIT_USER_EMAIL="pups@hotmail.com"
+
+
 # Пароли для пользователей при инициализации базы данных.
 # ENV INIT_ADMIN_PASSWORD="Pups_555"
 # ENV INIT_SYSTEM_PASSWORD="Pups_555"
