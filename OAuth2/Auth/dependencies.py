@@ -9,7 +9,7 @@ from typing_extensions import Annotated
 from config import get_settings, oauth2_scheme
 from Auth.db.db_connection import db_session
 from Auth.exceptions import AuthenticateException
-from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles, RequestFormData, FormData
+from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles, BaseUser
 from Auth.db.models.user_manager import UserManager
 from Auth.db.models.jwt_token_manager import JWTTokenManager
 
@@ -23,14 +23,16 @@ def get_db_session():
         finally:
             db_session.close()
 
+
 def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) -> dict | None:
     """
     Проверят валидность токена, и если он валидный, то возвращает его содержимое
-    :return : payload
+    :param session: сессия базы данных
     :param token: токен
-    :param jwt_token_type: тип токена
-    :return:
+    :param jwt_token_type: тип токена (доступа или обновления)
+    :return: содержимое токена
     """
+
     jwt_token_manager = JWTTokenManager(session)
     if token is None:
         return None
@@ -49,7 +51,8 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
         return payload
     except ExpiredSignatureError as err:
         # Если токен просрочен, то он всё равно раскодируется, чтобы найти JTI токена,    
-        payload = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'], options={"verify_signature": False})
+        payload = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'],
+                             options={"verify_signature": False})
         # по которому он удаляется из базы данных.
         jwt_token_manager.remove_jwt_token(payload.get('jti'))
         raise AuthenticateException("The JWT token is expired")
@@ -57,45 +60,58 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
         raise AuthenticateException("The JWT token is damaged")
 
 
-async def validate_access_token(session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+async def validate_access_token(session: Annotated[Session, Depends(get_db_session)],
+                                token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     """
     Проверяет валидность токена доступа
-    :return : payload - содержимое токена
+    :param session: сессия базы данных
+    :param token: токен доступа
+    :return:
     """
     return _validate_token(session, token, JWTTokenType.ACCESS)
 
-async def validate_refresh_token(session: Annotated[Session, Depends(get_db_session)], token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+
+async def validate_refresh_token(session: Annotated[Session, Depends(get_db_session)],
+                                 token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     """
     Проверяет валидность токена обновления
-    :return : payload - содержимое токена
+    :param session: сессия базы данных
+    :param token: токен обновления
+    :return:
     """
     return _validate_token(session, token, JWTTokenType.REFRESH)
 
 
-async def get_current_user(session: Annotated[Session, Depends(get_db_session)], payload: Annotated[dict, Depends(validate_access_token)]):
-    """ Возвращает пользователя по токену доступа, или анонимного пользователя, если токена доступа не было предоставлено вообще """
+async def get_current_user_and_scope(session: Annotated[Session, Depends(get_db_session)],
+                                     payload: Annotated[dict, Depends(validate_access_token)]) -> (BaseUser, list):
+    """
+    Возвращает пользователя по токену доступа, или анонимного пользователя,
+    если токена доступа не было предоставлено вообще. И его scope при авторизации.
+    :param session: сессия базы данных
+    :param payload: содержимое токена
+    :return: Пользователя и его scope (сфера деятельности)
+    :raises AuthenticateException: Не удалось подтвердить учётные данные; Пользователь не доступен.
+    """
     user_manager = UserManager(session)
     if payload is None:
-        return AnonymUser()
+        return AnonymUser(), None
     username: str = payload.get('sub')
+    scopes = payload.get('scopes')
     user: User = user_manager.get_user_schema_by_username(username).to_user()
     if not user:
         raise AuthenticateException("Could not validate credentials")
     if user.status != UerStatus.ACTIVE:
         raise AuthenticateException("Inactive user")
-    return user
-
-async def get_form_data(form_data: Annotated[RequestFormData, Form()]):
-    scope =[]
-    if form_data.scope_me:
-        scope.append("me")
-    if form_data.scope_items:
-        scope.append("items")
-    return FormData(username=form_data.username, password=form_data.password, scope=scope)
+    return user, scopes
 
 
 def check_scope(payload: Annotated[dict, Depends(validate_access_token)], security_scopes: SecurityScopes):
-    """ Проверяет scopes """
+    """
+    Проверяет scopes
+    :param payload: содержимое токена
+    :param security_scopes: scope для проверки
+    :raises AuthenticateException: Не достаточно прав
+    """
     authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' if security_scopes.scopes else "Bearer"
     if len(security_scopes.scopes) == 0:
         return
@@ -108,21 +124,37 @@ def check_scope(payload: Annotated[dict, Depends(validate_access_token)], securi
 
 
 def check_role(allowed_roles: tuple[str, ...] | list[str] | list[UserRoles]):
-    """ Проверяет роль пользователя """
-    def _check_role(user: Annotated[User, Depends(get_current_user)]):
+    """
+    Проверяет роль пользователя
+    :param allowed_roles: роли для проверки
+    :return:
+    :raises AuthenticateException: не достаточно прав
+    """
+    def _check_role(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
+        user, scope = user_and_scope
         if user.role in allowed_roles:
             return True
         raise AuthenticateException("Not enough permissions", "Bearer")
     return _check_role
 
-
-def is_auth(user: Annotated[User, Depends(get_current_user)]):
-    """ Проверят на авторизованного пользователя """
+def is_auth(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
+    """
+    Проверят на авторизованного пользователя
+    :param user_and_scope: текущий пользователь и его scope
+     :raises AuthenticateException: не авторизован
+    """
+    user, scope = user_and_scope
     if isinstance(user, AnonymUser):
         raise AuthenticateException("Not authorized", "Bearer")
 
 
-def is_not_auth(user: Annotated[User, Depends(get_current_user)]):
-    """ Проверят на неавторизованного пользователя """
+def is_not_auth(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
+    """
+    Проверят на неавторизованного пользователя
+    :param user_and_scope: текущий пользователь и его scope
+    :return:
+    """
+    user, scope = user_and_scope
     if isinstance(user, User):
-        raise AuthenticateException(f"Already authorized username '{user.username}' role {user.get_role()}", "Bearer")
+        raise AuthenticateException(f"Already authorized username '{user.username}' role {user.get_role()}",
+                                    "Bearer")

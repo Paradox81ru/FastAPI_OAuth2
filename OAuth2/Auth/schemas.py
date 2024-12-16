@@ -44,6 +44,7 @@ class UserRoles(MyEnum):
     employee = 7
     visitor_vip = 8
     visitor = 9
+    guest = 10
 
 
 class JWTTokenType(StrEnum):
@@ -56,19 +57,6 @@ class Token(BaseModel):
     refresh_token: str
     token_type: str
 
-class RequestFormData(BaseModel):
-    """ Форма из HTML-формы запроса логина пароля """
-    username: str
-    password: str
-    scope_me: bool | None = False
-    scope_items: bool | None = False
-
-
-class FormData(BaseModel):
-    """ Форма результата запроса логина пароля """
-    username: str
-    password: str
-    scope: list[str]
 
 class BaseUser(BaseModel):
     username: str
@@ -86,8 +74,9 @@ class BaseUser(BaseModel):
         return f"{self.__class__.__name__}({', '.join(attrs)})"
 
 class AnonymUser(BaseUser):
+    """ Анонимный пользователь """
     username: str = 'Anonym'
-    role: UserRoles = UserRoles.visitor
+    role: UserRoles = UserRoles.guest
     status: UerStatus = UerStatus.ACTIVE
 
 class User(BaseUser):
