@@ -16,8 +16,6 @@ import alembic.environment
 import alembic
 import pytest
 
-settings = get_settings()
-
 
 class UserType(StrEnum):
     ADMIN = 'Admin'
@@ -87,4 +85,4 @@ def client():
 
 @pytest.fixture(scope='session')
 def api_settings():
-    return settings
+    return get_settings()

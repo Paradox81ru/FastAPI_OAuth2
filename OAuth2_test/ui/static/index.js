@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const tokenField = document.getElementById("token");
     const userInfoField = document.getElementById("user_info");
     const requestBtn = document.getElementById("btn_request");
+    const rightsVerificationBlok = document.querySelector("#infoBlock .rights-verification-col");
+
+    const rightsVerification = new RightsVerification(rightsVerificationBlok);
+
+    rightsVerification.init();
     // Назначение обработчика кнопке щапроса информаци о пользователе
     requestBtn.addEventListener("click", getUserRequest);
 
@@ -14,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getUserRequest() {
         const api = "/api/test/get_user";
         const tokenRefresh = `bearer ${tokenField.value}`;
-        const headers = {Authorization: tokenRefresh};
+        const headers = tokenField.value != "" ? {Authorization: tokenRefresh} : {};
 
         apiRequest("GET", host, api, successfulResponse, errorResponse, headers, {});
     }
@@ -157,6 +162,8 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
        failedStatusCallback(error.message, error.statusCode, error.response)
     })
 }
+
+
 
 
 class StatusError extends Error {

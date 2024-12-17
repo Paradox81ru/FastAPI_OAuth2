@@ -18,6 +18,7 @@ def get_headers(token):
     """ Возвращает заголовок для авторизации по токену """
     return {'Authorization': f"Bearer {token}"}
 
+
 class TestScopeMe:
     """ Тестирует api 'api/test/scope/me' - авторизация со scope 'me' """
     @classmethod
@@ -102,6 +103,7 @@ class TestScopeMeItems:
         assert response.status_code == 401
         assert response.json()['detail'] == 'Not enough permissions'
 
+
 role_args = (
     ['admin', UserType.ADMIN, UserRoles.admin.name],
     ['admin', UserType.DIRECTOR, None],
@@ -120,6 +122,7 @@ role_args = (
     ['user', UserType.DIRECTOR, None],
     ['user', UserType.ANONYM, None],
 )
+
 
 @pytest.mark.parametrize('only_role, user_type, role_name', role_args,
                          ids=[f"Checks the 'only_{arg[0]}' by the {arg[1]} user"  for arg in role_args])
@@ -201,7 +204,6 @@ class TestOnlyAnonymUser:
     @classmethod
     def setup_class(cls):
         cls.api = "/api/test/only_anonym_user"
-
 
     def test_not_authorized(self, client: TestClient, oauth_server, users_data):
         """ Тестирует api '/api/test/only_authorized_user' - без авторизации """

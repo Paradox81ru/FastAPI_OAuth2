@@ -16,7 +16,6 @@ from fastapi.testclient import TestClient
 
 import pytest
 
-settings = get_settings()
 
 class UserType(StrEnum):
     ADMIN = 'Admin'
@@ -58,16 +57,19 @@ class Oauth2Settings(BaseSettings):
     init_director_password: SecretStr = "Password_123"
     init_user_password: SecretStr = "Password_123"
 
+
 @pytest.fixture()
 def client():
     return TestClient(app)
 
+
 @pytest.fixture(scope='session')
 def api_settings():
     """ Класс настроек oauth2_test """
-    return settings
+    return get_settings()
 
-@pytest.fixture()
+
+@pytest.fixture(scope='session')
 def oauth2_settings():
     """ Класс настроек oauth2 """
     env_path = os.path.join(os.getcwd(), '..', 'oauth2', 'Auth', '.env')
@@ -75,7 +77,7 @@ def oauth2_settings():
     return Oauth2Settings()
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def users_data(oauth2_settings) -> dict[UserType, UserAuth]:
     """ Данные для авторизации пользователя (логин и пароль) """
     users_data = {UserType.ADMIN: UserAuth(
@@ -90,10 +92,12 @@ def users_data(oauth2_settings) -> dict[UserType, UserAuth]:
                       oauth2_settings.init_user_password.get_secret_value())}
     return users_data
 
+
 @pytest.fixture(scope='session')
 def oauth_server(api_settings):
     """ Сервер авторизации """
     return  f"http://{api_settings.auth_server_host}:{api_settings.auth_server_port}"
+
 
 def get_access_token(user_auth: UserAuth, oauth_server, scope: list[str]):
     """
