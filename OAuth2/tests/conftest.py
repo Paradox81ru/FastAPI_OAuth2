@@ -46,7 +46,7 @@ def get_access_token(client: TestClient, user_auth: UserAuth, scope: list[str]):
     return response.json()['access_token']
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def users_data(api_settings) -> dict[UserType, UserAuth]:
     """ Данные для авторизации пользователя (логин и пароль) """
     users_data = {UserType.ADMIN: UserAuth(
