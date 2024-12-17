@@ -9,59 +9,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const rightsVerification = new RightsVerification(rightsVerificationBlok);
 
-    rightsVerification.init();
-    // Назначение обработчика кнопке щапроса информаци о пользователе
+    rightsVerification.init(checkRightRequest);
+    // Назначение обработчика кнопке запроса информаци о пользователе.
     requestBtn.addEventListener("click", getUserRequest);
 
     /**
-     * Запрашивает пользователя по указанному токену
+     * Запрашивает пользователя по указанному токену.
      */
     function getUserRequest() {
         const api = "/api/test/get_user";
         const tokenRefresh = `bearer ${tokenField.value}`;
         const headers = tokenField.value != "" ? {Authorization: tokenRefresh} : {};
 
+        rightsVerification.hideAllBadge();
         apiRequest("GET", host, api, successfulResponse, errorResponse, headers, {});
     }
 
     /**
-     * Функция обработки успешного получения токенов
+     * Функция обработки успешного получения токенов.
      * @param {*} data 
      */
         function successfulResponse(data) {
             hideAllertDanger();
             fillUserFields(data);
         }
-     
     
-        /**
-         * Ошибка при ответе от срвера
-         * @param {*} statusText 
-         * @param {*} response 
-         */
-        function errorResponse(statusText, statusCode, response) {
-            clearUserFields();
-            if ([400, 401].indexOf(statusCode) != -1)
-                response.then(responsen_json => {
-                    showAlertDanger(`Error: ${statusText}. ${responsen_json['detail']}`);
-            });
-            else {
-                showAlertDanger(`Error: ${statusCode} - ${statusText}`);
-            }
+    /**
+     * Ошибка при ответе от сервера.
+     * @param {*} statusText 
+     * @param {*} response 
+     */
+    function errorResponse(statusText, statusCode, response) {
+        clearUserFields();
+        if ([400, 401].indexOf(statusCode) != -1)
+            response.then(responsen_json => {
+                showAlertDanger(`Error: ${statusText}. ${responsen_json['detail']}`);
+        });
+        else {
+            showAlertDanger(`Error: ${statusCode} - ${statusText}`);
         }
+    }
 
     /**
-     * Отображет сообшение об ошибке
-     * @param {String} msg сообшение об ошибке
+     * Проверка прав ууказанного api.
+     * @param {String} api 
+     * @param {CallableFunction} successfullResponseFunc Функция обработки успешного овтета на запрос.
+     * @param {CallableFunction} errorResposeFunc Функция обработки ошибки ответа на запрос.
      */
-        function showAlertDanger(msg) {
-            alertDanger.textContent = msg;
-            if (alertDanger.classList.contains(HTML_CLASS_HIDDEN)) 
-                alertDanger.classList.remove(HTML_CLASS_HIDDEN);
-        }
+    function checkRightRequest(api, successfullResponseFunc, errorResposeFunc) {
+        api = `/api/test/${api}`;
+        const tokenRefresh = `bearer ${tokenField.value}`;
+        const headers = tokenField.value != "" ? {Authorization: tokenRefresh} : {};
+
+        apiRequest("GET", host, api, successfullResponseFunc, errorResposeFunc, headers, {});
+    }
+
+    /**
+     * Отображет сообшение об ошибке.
+     * @param {String} msg Сообшение об ошибке.
+     */
+    function showAlertDanger(msg) {
+        alertDanger.textContent = msg;
+        if (alertDanger.classList.contains(HTML_CLASS_HIDDEN)) 
+            alertDanger.classList.remove(HTML_CLASS_HIDDEN);
+    }
     
     /**
-     * Скрывает сообшение об ошибке
+     * Скрывает сообшение об ошибке.
      */
     function hideAllertDanger() {
         if (!alertDanger.classList.contains(HTML_CLASS_HIDDEN)) {
@@ -71,32 +85,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Заполняет поле пользователя
-     * @param {*} response ответ от сервера
+     * Заполняет поле пользователя.
+     * @param {*} response Ответ от сервера.
      */
     function fillUserFields(response){
         userInfoField.value = convertResponseToUser(response);
     }
 
     /**
-     * Преобразует ответ в данные о пользователе
-     * @param {*} response 
+     * Преобразует ответ в данные о пользователе.
+     * @param {*} response Ответ от сервера.
      * @returns 
      */
-        function convertResponseToUser(response) {
-            user = response[0];
-            scopes = response[1]
-            let result = "";
-            for (prop in user) {
-                result += `${prop}: ${user[prop]}\n`;
-            }
-            if (scopes.length > 0)
-                result += `scopes: ${scopes.join(", ")}\n`;
-            return result;
+    function convertResponseToUser(response) {
+        user = response[0];
+        scopes = response[1]
+        let result = "";
+        for (prop in user) {
+            result += `${prop}: ${user[prop]}\n`;
         }
+        if (scopes.length > 0)
+            result += `scopes: ${scopes.join(", ")}\n`;
+        return result;
+    }
 
     /**
-    * Очищает поле пользователя
+    * Очищает поле информации о пользователе.
     */
     function clearUserFields() {
         userInfoField.value = "";
@@ -104,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Проверка на пустой объект
+ * Проверка на пустой объект.
  * @param obj
  * @returns {boolean}
  */
@@ -116,19 +130,18 @@ function isObjectEmpty(obj) {
 }
 
 /**
- * API запрос
- * @param {String method} метод запроса
- * @param {String} api эндпоинт
- * @param {function} successCallback функция обратного вызова при успешном ответе
- * @param {function} failedStatusCallback функция обратного вызова при ошибке ответа
- * @param {{}} [headers={}] заголовки запроса
- * @param {{}} [data={}] данные запроса
+ * API запрос.
+ * @param {String method} Метод запроса (GET | POST)
+ * @param {String} api Эндпоинт.
+ * @param {function} successCallback Функция обратного вызова при успешном ответе.
+ * @param {function} failedStatusCallback Функция обратного вызова при ошибке ответа.
+ * @param {{}} [headers={}] Заголовки запроса.
+ * @param {{}} [data={}] Данные запроса.
  */
 function apiRequest(method, host, api, successCallback, failedStatusCallback, headers={}, data={}) {
     const url=`${host}${api}`;
     const requiredHeaders = {"content-type": "application/json; charset=UTF-8"};
     Object.assign(headers, requiredHeaders);
-
 
     let options = {
         headers: headers,
@@ -150,7 +163,6 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
         if (response.ok) {
             return response.json()
         } else {
-            // throw new ResonseError(response.statusText, response.status, response);
             throw new StatusError(response.statusText, response.status, response.json())
         }
     })
@@ -158,15 +170,20 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
         successCallback(data);
     })
     .catch(error => {
-        // return error.resopnse.json
        failedStatusCallback(error.message, error.statusCode, error.response)
     })
 }
 
-
-
-
+/**
+ * Класс ошикби статуса
+ */
 class StatusError extends Error {
+    /**
+     * Конструктор класса
+     * @param {String} message Сообщение ошибки.
+     * @param {Number} statusCode Код ответа.
+     * @param {*} response Ответ в виде Promise.
+     */
     constructor(message, statusCode, response) {
         super(message);
         this.name = "StatusError";

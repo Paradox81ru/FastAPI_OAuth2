@@ -3,23 +3,29 @@
  */
 class RightsVerification {
     /**
-     * 
-     * @param {HTMLElement} block блок в котором должны быть созданы кнопки
+     * Конструктор класса.
+     * @param {HTMLElement} block Блок в котором должны быть созданы кнопки.
      */
     constructor(block) {
+        /** @param {HTMLElement} Блок в котором должны быть созданы кнопки. */
         this.block = block
+        /** @param {Array} Список всех эндпоинтов проверки прав. */
         this.api_list = ["scope/me", "scope/me_items", "only_admin", "only_director", "only_admin_or_director", "only_user", "only_authorized_user", "only_anonym_user"];
-        // Объект списка всех значков с ключём API.
+        /** @param {Object} Словарь всех значков с ключём API. */
         this.badgeList = {};
     }
 
-    init() {
+    /**
+     * Инициирует работу класса проверки прав.
+     * @param {Function} checkRightRequest Функция запроса проверки права со следующей сигнатурой: (api, successfullResponseFunc, errorResposeFunc).
+     */
+    init(checkRightRequest) {
         this.addButtonRows();
-        this.addEventListner();
+        this.addEventListner(checkRightRequest);
     }
 
     /**
-     * Добавляет строки с кнопками
+     * Добавляет строки с кнопками.
      */
     addButtonRows() {
         for (let api of this.api_list)
@@ -27,29 +33,39 @@ class RightsVerification {
     }
 
     /**
-     * Добавляет обработчик для нажатия на кнопки
+     * Добавляет обработчик для нажатия на кнопки.
+     * @param {Function} checkRightRequest Функция запроса проверки права со следующей сигнатурой: (api, successfullResponseFunc, errorResposeFunc).
      */
-    addEventListner() {
-        this.block.addEventListener('click', (ev) => this.buttonClickHandler(ev));
+    addEventListner(checkRightRequest) {
+        this.block.addEventListener('click', (ev) => this.buttonClickHandler(ev, checkRightRequest));
+        
     }
 
     /**
-     * Обработчик нажатия кнопок
-     * @param {MouseEvent} event 
+     * Обработчик нажатия кнопок.
+     * @param {MouseEvent} event Класс события нажатия кнопки мыши.
+     * @param {Function} checkRightRequest Функция запроса проверки права со следующей сигнатурой: (api, successfullResponseFunc, errorResposeFunc).
      */
-    buttonClickHandler(event) {
-        /** @param {HTMLButtonElement} */
+    buttonClickHandler(event, checkRightRequest) {
+        /** @param {HTMLButtonElement} Кнопка, которая была нажата. */
         let button = event.target;
         if (button.nodeName != 'BUTTON')
             return;
 
         const api = button.getAttribute('data-api');
-        alert(api);
-        this.setBadge(api, 'ok');
+        checkRightRequest(api, 
+            () => this.setBadge(api, 'ok'), 
+            (statusText, statusCode, response) => {
+                if (statusCode == 401)
+                    this.setBadge(api, 'invalid');
+                else {
+                    alert(`Error: ${statusCode} - ${statusText}`);
+                }
+            })
     }
 
     /**
-     * Устанавливает badge
+     * Устанавливает badge.
      * @param {String} api 
      * @param {String} Параметр установки ok, invalid или hide.
      */
@@ -68,8 +84,8 @@ class RightsVerification {
     }
 
     /**
-     * Устанавливает значёк в Ok
-     * @param {String} api 
+     * Устанавливает значёк в Ok.
+     * @param {String} api API к которому относится значёк.
      */
     setBadgeOk(api) {
         /** @param {HTMLElement} */
@@ -85,8 +101,8 @@ class RightsVerification {
     }
 
     /**
-     * Устанавливает значёк в Invalid
-     * @param {String} api 
+     * Устанавливает значок в Invalid.
+     * @param {String} api API к которому относится значок.
      */
     setBadgeInvalid(api) {
         /** @param {HTMLElement} */
@@ -102,8 +118,8 @@ class RightsVerification {
     }
 
     /**
-     * Скрывает значёк
-     * @param {String} api 
+     * Скрывает значок.
+     * @param {String} api API к которому относится значок.
      */
     setBadgeHide(api) {
         let badge = this.badgeList[api];
@@ -111,8 +127,16 @@ class RightsVerification {
     }
 
     /**
-     * Создаёт строку проверки права
-     * @param {String} api API по которой будет проверятся право
+     * Скрывает все значки.
+     */
+    hideAllBadge() {
+        for (let api of this.api_list)
+            this.setBadgeHide(api);
+    }
+
+    /**
+     * Создаёт строку проверки права.
+     * @param {String} api API по которой будет проверятся право.
      * @returns 
      */
     createRow(api) {
@@ -126,9 +150,9 @@ class RightsVerification {
     }
 
     /**
-     * Создёет кнопку
-     * @param {String} btnName Текст кнопки
-     * @param {String} api API к которой относиться кнопка
+     * Создёет кнопку.
+     * @param {String} btnName Текст кнопки.
+     * @param {String} api API к которой относиться кнопка.
      * @returns {HTMLElement}
      */
     createButton(api) {
@@ -138,7 +162,7 @@ class RightsVerification {
     }
 
     /**
-     * Создаёет значёк
+     * Создаёет значок.
      * @returns {HTMLElement}
      */
     createSpanBadge () {
@@ -147,11 +171,11 @@ class RightsVerification {
     }
 
     /**
-     * Создаёт элемент HTML
-     * @param {String} tagName Наименование тэга
-     * @param {Array} classList список классов
-     * @param {Object} atrs объект с аттрибутами
-     * @param {String} text текст
+     * Создаёт элемент HTML.
+     * @param {String} tagName Наименование тэга.
+     * @param {Array} classList Список классов.
+     * @param {Object} atrs Объект с аттрибутами.
+     * @param {String} text Текст.
      * @returns {HTMLElement}
      */
     createHTMLElement(tagName, classList, attrs=undefined, text=undefined) {
