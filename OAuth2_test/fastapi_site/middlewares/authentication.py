@@ -3,10 +3,13 @@ from fastapi.requests import HTTPConnection
 from starlette.applications import Starlette
 from starlette.authentication import AuthCredentials, AuthenticationBackend, AuthenticationError,  BaseUser
 
+from config import get_logger
 from fastapi_site.schemas import AnonymUser, User
 from fastapi_site.utils import get_authorization_scheme_param
 
 import httpx
+
+logger = get_logger("authentication")
 
 
 class JWTTokenAuthBackend(AuthenticationBackend):

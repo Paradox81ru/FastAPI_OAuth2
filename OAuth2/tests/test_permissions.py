@@ -73,7 +73,6 @@ class TestScopeMeItems:
         """ Поверяет 'api/scope/me_items' для пользователя авторизовавшегося только со scope 'me', но без scope 'items' """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, ['me'])
-
         response = client.get(self.api, headers=get_headers(token))
         assert response.status_code == 401
         assert response.json()['detail'] == 'Not enough permissions'
