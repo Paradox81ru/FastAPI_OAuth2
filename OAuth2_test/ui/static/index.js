@@ -153,7 +153,6 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
         successCallback(data);
     })
     .catch(error => {
-        // return error.resopnse.json
        failedStatusCallback(error.message, error.statusCode, error.response)
     })
 }

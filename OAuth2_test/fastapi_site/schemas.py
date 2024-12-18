@@ -1,7 +1,9 @@
-from starlette.authentication import SimpleUser, UnauthenticatedUser
-from pydantic import BaseModel, ConfigDict, SecretStr
-from enum import StrEnum, IntEnum
 from datetime import datetime
+from enum import StrEnum, IntEnum
+
+from pydantic import BaseModel, ConfigDict
+from starlette.authentication import SimpleUser, UnauthenticatedUser
+
 
 class MyEnum(IntEnum):
     """ Собственный класс числовых перечислений. """

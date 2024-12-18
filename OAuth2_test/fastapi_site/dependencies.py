@@ -1,12 +1,8 @@
-from fastapi import HTTPException, Header, Depends, Request
-from typing import Annotated
-
+from fastapi import Request
 from fastapi.security import SecurityScopes
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 from fastapi_site.exceptions import AuthenticateException
 from fastapi_site.schemas import User, UserRoles, AnonymUser
-from fastapi_site.utils import get_authorization_scheme_param
 
 
 def check_scope(request: Request, security_scopes: SecurityScopes):

@@ -1,7 +1,6 @@
 import pytest
-from fastapi import Response
 from fastapi.testclient import TestClient
-from config import Settings
+
 from fastapi_site.schemas import UserRoles
 from tests.conftest import get_access_token, UserType
 

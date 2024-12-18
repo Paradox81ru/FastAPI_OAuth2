@@ -1,10 +1,7 @@
-from typing import Annotated
 from fastapi import APIRouter, Depends, Request, Security
 
 from fastapi_site.dependencies import check_scope, check_role, is_auth, is_anonym_user
-# from fastapi_site.dependencies import validate_jwt_token
 from fastapi_site.schemas import AnonymUser, User, UserRoles
-import httpx
 
 router = APIRouter(
     prefix="/test",

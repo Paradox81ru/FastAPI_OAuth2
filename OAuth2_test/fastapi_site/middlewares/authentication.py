@@ -1,13 +1,10 @@
-from typing import final
+import httpx
 from fastapi.requests import HTTPConnection
-from starlette.applications import Starlette
-from starlette.authentication import (AuthCredentials, AuthenticationBackend, AuthenticationError,  BaseUser,
+from starlette.authentication import (AuthCredentials, AuthenticationBackend, AuthenticationError, BaseUser,
                                       HTTPException)
 
 from fastapi_site.schemas import AnonymUser, User
 from fastapi_site.utils import get_authorization_scheme_param
-
-import httpx
 
 
 class JWTTokenAuthBackend(AuthenticationBackend):
