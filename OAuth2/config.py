@@ -1,4 +1,6 @@
+import logging
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
@@ -16,7 +18,32 @@ oauth2_scheme = OAuth2PasswordBearer(
     scopes={"me": "Read information about the current user.", "items": "Read items."}
 )
 
+# Корневой каталог проекта
+root_path = Path(__file__).resolve().parents[0]
+
+LOGGER_FILENAME = Path(root_path, 'logs','OAuth2.log' )
 templates = Jinja2Templates(directory="ui/jinja2")
+
+def get_logger(logger_name: str) -> logging.Logger:
+    """ Возвращает логгер """
+    logger = logging.getLogger(logger_name)
+
+    create_logs_dir()
+    logger_handler = logging.FileHandler(LOGGER_FILENAME, mode='a')
+    logger_formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
+    logger_handler.setFormatter(logger_formatter)
+    logger.addHandler(logger_handler)
+    # self.set_logger_level(logging.ERROR)
+    is_debug_mode = os.getenv('DEBUG_MODE') in ('True', 'true')
+    logger.setLevel(logging.DEBUG if is_debug_mode else logging.ERROR)
+    return logger
+
+def create_logs_dir():
+    """ Проверяет наличие каталогов с логами, и если нет, создаёт ешл """
+    parent_dir = Path(LOGGER_FILENAME).parent
+    if not parent_dir.exists():
+        parent_dir.mkdir()
+
 
 class MyPwdContext(AbstractPwdContext):
     def __init__(self, pwd_context):
@@ -30,15 +57,30 @@ class MyPwdContext(AbstractPwdContext):
 
 
 class Settings(BaseSettings):
+    auth_host: str = "localhost"
+    auth_port: int = 8001
+
     secret_key: SecretStr = "15d29aad37ecf71a6094bf2552232839a9df526f968d3c49e6885883892dca01"
     access_token_expire_minutes: int = 5
     refresh_token_expire_minutes: int = 30
     db_connect_str: str = 'sqlite:///db.sqlite3'
 
-    init_admin_password: SecretStr = "Cucumber_123"
-    init_system_password: SecretStr = "Cucumber_123"
-    init_director_password: SecretStr = "Cucumber_123"
-    init_user_password: SecretStr = "Cucumber_123"
+
+    init_admin_email: str = 'admin@mail.com'
+    init_system_email: str = 'system@mail.com'
+    init_director_login: str = 'Director'
+    init_director_name: str = 'Boss'
+    init_director_lastname: str = 'Super'
+    init_director_email: str = 'boss@mail.com'
+    init_user_login: str = 'User'
+    init_user_name: str = ''
+    init_user_lastname: str = ''
+    init_user_email: str = 'user@mail.com'
+
+    init_admin_password: SecretStr = "Password_123"
+    init_system_password: SecretStr = "Password_123"
+    init_director_password: SecretStr = "Password_123"
+    init_user_password: SecretStr = "Password_123"
 
 
 def get_pwd_context():
