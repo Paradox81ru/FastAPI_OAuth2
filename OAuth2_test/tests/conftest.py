@@ -69,13 +69,8 @@ def client():
 
 @pytest.fixture(scope='session')
 def api_settings():
-<<<<<<< HEAD
     """ Класс настроек oauth2_test """
     return get_settings()
-=======
-    """ Класс настроек oauth2_test. """
-    return settings
->>>>>>> oauth2_test
 
 
 @pytest.fixture(scope='session')
