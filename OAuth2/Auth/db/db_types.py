@@ -4,6 +4,7 @@ from sqlalchemy import types
 
 
 class MyDateTime(types.TypeDecorator):
+    """ Собственный тип данных даты-времени """
     impl = types.DateTime
     
     def process_bind_param(self, value, dialect):

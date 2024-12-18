@@ -1,25 +1,29 @@
 import pytest
-from fastapi import Response
 from fastapi.testclient import TestClient
 
 from Auth.schemas import UserRoles
-from config import Settings
 from tests.conftest import UserType, get_access_token
 
 
 def get_headers(token):
-    """ Возвращает заголовок для авторизации по токену """
+    """ Возвращает заголовок для авторизации по токену. """
     return {'Authorization': f"Bearer {token}"}
 
 
 class TestScopeMe:
-    """ Тестирует api 'api/test/scope/me' - авторизация со scope 'me' """
+    """ Тестирует api 'api/test/scope/me' - авторизация со scope 'me'. """
     @classmethod
     def setup_class(cls):
+        """ Инициализирует тест. """
         cls.api = "/api/test/scope/me"
 
     def test_scope_me(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me' для пользователя авторизовавшегося со scope 'me' """
+        """
+        Поверяет 'api/scope/me' для пользователя авторизовавшегося со scope 'me'.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.USER]
         token = get_access_token(client, user_auth, ['me'])
         response = client.get(self.api, headers=get_headers(token))
@@ -28,7 +32,12 @@ class TestScopeMe:
                                    'role': UserRoles.visitor.name, 'scopes': ['me']}
 
     def test_scope_me_and_items(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me' для пользователя авторизовавшегося со scope 'me' и 'items' """
+        """
+        Поверяет 'api/scope/me' для пользователя авторизовавшегося со scope 'me' и 'items'.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, ['me', 'items'])
         response = client.get(self.api, headers=get_headers(token))
@@ -37,7 +46,12 @@ class TestScopeMe:
                                    'role': UserRoles.director.name, 'scopes': ['me', 'items']}
 
     def test_note_scope_me(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me' для пользователя авторизовавшегося только со scope 'items', но без scope 'me'"""
+        """
+        Поверяет 'api/scope/me' для пользователя авторизовавшегося только со scope 'items', но без scope 'me'.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, ['items'])
         response = client.get(self.api, headers=get_headers(token))
@@ -45,7 +59,12 @@ class TestScopeMe:
         assert response.json()['detail'] == 'Not enough permissions'
 
     def test_without_scope(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me' для пользователя авторизовавшегося без установленного scope """
+        """
+        Поверяет 'api/scope/me' для пользователя авторизовавшегося без установленного scope.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))
@@ -54,14 +73,20 @@ class TestScopeMe:
 
 
 class TestScopeMeItems:
-    """ Тестирует api 'api/test/scope/me_items' - авторизация со scope 'me' и 'items'  """
+    """ Тестирует api 'api/test/scope/me_items' - авторизация со scope 'me' и 'items'. """
 
     @classmethod
     def setup_class(cls):
+        """ Инициализирует тест. """
         cls.api = "/api/test/scope/me_items"
 
     def test_scope_me_and_items(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me_items' для пользователя авторизовавшегося со scope 'me' """
+        """
+        Поверяет 'api/scope/me_items' для пользователя авторизовавшегося со scope 'me'.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.USER]
         token = get_access_token(client, user_auth, ['me', 'items'])
         response = client.get(self.api, headers=get_headers(token))
@@ -70,7 +95,12 @@ class TestScopeMeItems:
                                    'role': UserRoles.visitor.name, 'scopes': ['me', 'items']}
 
     def test_scope_me(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me_items' для пользователя авторизовавшегося только со scope 'me', но без scope 'items' """
+        """
+        Поверяет 'api/scope/me_items' для пользователя авторизовавшегося только со scope 'me', но без scope 'items'/
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, ['me'])
         response = client.get(self.api, headers=get_headers(token))
@@ -78,7 +108,12 @@ class TestScopeMeItems:
         assert response.json()['detail'] == 'Not enough permissions'
 
     def test_scope_items(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me_items' для пользователя авторизовавшегося только со scope 'items', но без scope 'me' """
+        """
+        Поверяет 'api/scope/me_items' для пользователя авторизовавшегося только со scope 'items', но без scope 'me'.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, ['items'])
 
@@ -87,7 +122,12 @@ class TestScopeMeItems:
         assert response.json()['detail'] == 'Not enough permissions'
 
     def test_without_scope(self, client: TestClient, users_data):
-        """ Поверяет 'api/scope/me_items' для пользователя авторизовавшегося без установленного scope """
+        """
+        Поверяет 'api/scope/me_items' для пользователя авторизовавшегося без установленного scope.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, [])
 
@@ -96,6 +136,7 @@ class TestScopeMeItems:
         assert response.json()['detail'] == 'Not enough permissions'
 
 
+# Параметры для теста 'test_role'.
 role_args = (
     ['admin', UserType.ADMIN, UserRoles.admin.name],
     ['admin', UserType.DIRECTOR, None],
@@ -115,18 +156,18 @@ role_args = (
     ['user', UserType.ANONYM, None],
 )
 
+
 @pytest.mark.parametrize('only_role, user_type, role_name', role_args,
-                         ids=[f"Checks the 'only_{arg[0]}' by the {arg[1]} user"  for arg in role_args])
-def test_role(client: TestClient, users_data,
-              only_role: str, user_type: UserType, role_name: str | None):
+                         ids=[f"Checks the 'only_{arg[0]}' by the {arg[1]} user" for arg in role_args])
+def test_role(client: TestClient, users_data, only_role: str, user_type: UserType, role_name: str | None):
     """
-    Проверяет аутентификацию по роли
-    :param client:
+    Проверяет аутентификацию по роли.
+    :param client: Тестовый клиент.
     :param users_data: Данные для авторизации пользователя (логин и пароль).
     :param only_role: Тип аутентификации.
     :param user_type: Авторизующийся пользователь.
     :param role_name: Роль авторизующегося пользователя. Если None, то доступ этому пользователю запрещён.
-    :return:
+    :raises AssertionError:
     """
     api = f"/api/test/only_{only_role}"
     user_auth = ""
@@ -148,14 +189,20 @@ def test_role(client: TestClient, users_data,
 
 
 class TestOnlyAuthorizedUser:
-    """ Тестирует api '/api/test/only_authorized_user' - только авторизованный пользователь """
+    """ Тестирует api '/api/test/only_authorized_user' - только авторизованный пользователь. """
 
     @classmethod
     def setup_class(cls):
+        """ Инициализирует тест. """
         cls.api = "/api/test/only_authorized_user"
 
     def test_admin(self, client: TestClient, users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - с пользователем Администратор """
+        """
+        Тестирует api '/api/test/only_authorized_user' - с пользователем Администратор.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.ADMIN]
         token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))
@@ -164,7 +211,12 @@ class TestOnlyAuthorizedUser:
                                    'role': UserRoles.admin.name}
 
     def test_director(self, client: TestClient, users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - с пользователем Директор """
+        """
+        Тестирует api '/api/test/only_authorized_user' - с пользователем Директор.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))
@@ -173,36 +225,55 @@ class TestOnlyAuthorizedUser:
                                    'role': UserRoles.director.name}
 
     def test_user(self, client: TestClient, users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - с обычным пользователем """
+        """
+        Тестирует api '/api/test/only_authorized_user' - с обычным пользователем.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.USER]
-        token = get_access_token(client, user_auth,[])
+        token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))
         assert response.status_code == 200
         assert response.json() == {'status': 'ok', 'username': user_auth.username,
                                    'role': UserRoles.visitor.name}
 
-    def test_not_authorized(self, client: TestClient, users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - без авторизации """
+    def test_not_authorized(self, client: TestClient):
+        """
+        Тестирует api '/api/test/only_authorized_user' - без авторизации.
+        :param client: Тестовый клиент.
+        :raises AssertionError:
+        """
         response = client.get(self.api)
         assert response.status_code == 401
         assert response.json()['detail'] == 'Not authorized'
 
 
 class TestOnlyAnonymUser:
-    """ Тестирует api '/api/test/only_authorized_user' - только авторизованный пользователь """
+    """ Тестирует api '/api/test/only_authorized_user' - только авторизованный пользователь. """
 
     @classmethod
     def setup_class(cls):
+        """ Инициализирует тест. """
         cls.api = "/api/test/only_anonym_user"
 
-    def test_not_authorized(self, client: TestClient, users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - без авторизации """
+    def test_not_authorized(self, client: TestClient):
+        """
+        Тестирует api '/api/test/only_authorized_user' - без авторизации.
+        :param client: Тестовый клиент.
+        :raises AssertionError:
+        """
         response = client.get(self.api)
         assert response.json() == {'status': 'ok', 'username': 'Anonym',
                                    'role': UserRoles.guest.name}
 
     def test_admin(self, client: TestClient, users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - с пользователем Администратор """
+        """
+        Тестирует api '/api/test/only_authorized_user' - с пользователем Администратор.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.ADMIN]
         token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))
@@ -211,7 +282,12 @@ class TestOnlyAnonymUser:
                 f"Already authorized username '{user_auth.username}' role {UserRoles.admin.name}")
 
     def test_director(self, client: TestClient,  users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - с пользователем Директор """
+        """
+        Тестирует api '/api/test/only_authorized_user' - с пользователем Директор.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.DIRECTOR]
         token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))
@@ -220,7 +296,12 @@ class TestOnlyAnonymUser:
                 f"Already authorized username '{user_auth.username}' role {UserRoles.director.name}")
 
     def test_user(self, client: TestClient, users_data):
-        """ Тестирует api '/api/test/only_authorized_user' - с обычным пользователем """
+        """
+        Тестирует api '/api/test/only_authorized_user' - с обычным пользователем.
+        :param client: Тестовый клиент.
+        :param users_data: Данные для авторизации пользователя (логин и пароль).
+        :raises AssertionError:
+        """
         user_auth = users_data[UserType.USER]
         token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))

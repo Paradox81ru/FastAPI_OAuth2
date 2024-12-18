@@ -18,23 +18,23 @@ document.addEventListener('DOMContentLoaded', function() {
     btnTokenRefresh.addEventListener('click', requestRefreshTokenHandler);
 
     /**
-     * Обработчик кнопик запроса токенов
-     * @param {*} ev 
+     * Обработчик кнопки запроса токенов.
+     * @param {MouseEvent} ev
      */
     function requestTokenHandler(ev) {
         authorizationRequest();
     }
 
     /**
-     * Обработчик кнопки обновления токенов
-     * @param {*} ev 
+     * Обработчик кнопки обновления токенов.
+     * @param {MouseEvent} ev 
      */
     function requestRefreshTokenHandler(ev) {
         tokenRefreshRequest();
     }
 
     /**
-     * Запрос полчения токенов
+     * Запрос получения токенов.
      */
     function authorizationRequest() {
         const api = "/api/oauth/token";
@@ -43,6 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
         apiRequest("POST", host, api, successfulResponse, errorResponse, {}, formData);
     }
 
+    /**
+     * Формирует данные формы.
+     * @returns Данные формы.
+     */
     function getFormData() {
         let formData = new FormData(formAuth);
         let scopes = [];
@@ -66,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Запросо обновления токенов
+     * Запрос обновления токенов.
      */
     function tokenRefreshRequest() {
         const api = "/api/oauth/token-refresh";
@@ -78,36 +82,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Функция обработки успешного получения токенов
-     * @param {*} data 
+     * Функция обработки успешного получения токенов.
+     * @param {Object} data 
      */
     function successfulResponse(data) {
-        hideAllertDanger();
+        hideAlertDanger();
         fillTokenFields(data['access_token'], data['refresh_token'])
     }
  
 
     /**
-     * Ошибка при ответе от срвера
-     * @param {*} statusText 
-     * @param {*} response 
+     * Ошибка при ответе от сервера.
+     * @param {String} statusText Статус ответа.
+     * @param {*} response Ответ в виде Promise.
      */
     function errorResponse(statusText, statusCode, response) {
         clearTokenFields();
         if ([400, 401].indexOf(statusCode) != -1)
-            response.then(responsen_json => {
-                showAlertDanger(`Error: ${statusText}. ${responsen_json['detail']}`);
+            response.then(response_json => {
+                showAlertDanger(`Error: ${statusText}. ${response_json['detail']}`);
         });
-            // showAlertDanger(`Error: ${statusText} ${responsen['detail']}`);
         else {
             showAlertDanger(`Error: ${statusCode} - ${statusText}`);
         }
     }
 
     /**
-     * Заполняет поля токенов данными
-     * @param {String} accessToken 
-     * @param {String} refreshToken 
+     * Заполняет поля токенов данными.
+     * @param {String} accessToken Токен доступа.
+     * @param {String} refreshToken Токен обновления.
      */
     function fillTokenFields(accessToken, refreshToken) {
         fieldTokenAccess.value = accessToken;
@@ -115,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Очищает поля токенов
+     * Очищает поля токенов.
      */
     function clearTokenFields() {
         fieldTokenAccess.value = '';
@@ -124,8 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /**
-     * Отображет сообшение об ошибке
-     * @param {String} msg сообшение об ошибке
+     * Отображает сообщение об ошибке.
+     * @param {String} msg Сообщение об ошибке.
      */
     function showAlertDanger(msg) {
         alertDanger.textContent = msg;
@@ -134,9 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Скрывает сообшение об ошибке
+     * Скрывает сообщение об ошибке.
      */
-    function hideAllertDanger() {
+    function hideAlertDanger() {
         if (!alertDanger.classList.contains(HTML_CLASS_HIDDEN)) {
             alertDanger.classList.add(HTML_CLASS_HIDDEN);
             alertDanger.textContent = "";
@@ -146,8 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Проверка на пустой объект
- * @param obj
+ * Проверка на пустой объект.
+ * @param obj Проверяемый объект.
  * @returns {boolean}
  */
 function isObjectEmpty(obj) {
@@ -158,8 +161,8 @@ function isObjectEmpty(obj) {
 }
 
 /**
- * Формирует и возвращает строку параметра запроса
- * @param data {Object}
+ * Формирует и возвращает строку параметра запроса.
+ * @param {Object} data
  * @returns {string}
  */
 function getSearchParams(data) {
@@ -171,13 +174,13 @@ function getSearchParams(data) {
 }
 
 /**
- * API запрос
- * @param {String method} метод запроса
- * @param {String} api эндпоинт
- * @param {function} successCallback функция обратного вызова при успешном ответе
- * @param {function} failedStatusCallback функция обратного вызова при ошибке ответа
- * @param {{}} [headers={}] заголовки запроса
- * @param {{}} [data={}] данные запроса
+ * API запрос.
+ * @param {String method} Метод запроса (GET | POST).
+ * @param {String} api Эндпоинт.
+ * @param {function} successCallback Функция обратного вызова при успешном ответе.
+ * @param {function} failedStatusCallback Функция обратного вызова при ошибке ответа.
+ * @param {{}} [headers={}] Заголовки запроса.
+ * @param {{}} [data={}] Данные запроса.
  */
 function apiRequest(method, host, api, successCallback, failedStatusCallback, headers={}, data={}) {
     const url=`${host}${api}`;
@@ -218,6 +221,9 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
     })
 }
 
+/**
+ * СОбственный класс ошибуи статуса.
+ */
 class StatusError extends Error {
     constructor(message, statusCode, response) {
         super(message);

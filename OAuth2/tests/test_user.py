@@ -7,16 +7,24 @@ from Auth import schemas
 from Auth.schemas import UserRoles, UerStatus
 from config import Settings
 
+
 class TestUser:
+    """ Тестирует работу с пользователями. """
+
     def test_existence_original_users(self, db_session: Session, api_settings: Settings):
-        """ Проверяет наличие первоначальных пользователей """
+        """
+        Проверяет наличие первоначальных пользователей.
+        :param db_session: Сессия для работы с базой данных.
+        :param api_settings: Настройки приложения.
+        :raises AssertionError:
+        """
         user_manager = UserManager(db_session)
         stmt = select(func.count(models.User.id))
         with db_session:
             user_count = db_session.execute(stmt).scalar_one()
             assert user_count == 4
 
-        # admin_user = crud.get_user_by_username(db_session, 'Admin')
+        # Проверка наличия администратора.
         admin_user = user_manager.get_user_by_username('Admin')
         assert admin_user.username == 'Admin'
         assert admin_user.role == UserRoles.admin
@@ -27,7 +35,7 @@ class TestUser:
         assert not admin_user_schema.check_password("qwerty")
         assert admin_user_schema.check_password(api_settings.init_admin_password.get_secret_value())
 
-        # system_user = crud.get_user_by_username(db_session, 'System')
+        # Проверка наличия системного пользователя.
         system_user = user_manager.get_user_by_username('System')
         assert system_user.username == "System"
         assert system_user.role == UserRoles.system
@@ -36,7 +44,7 @@ class TestUser:
         assert not system_user_schema.check_password("qwerty")
         assert system_user_schema.check_password(api_settings.init_system_password.get_secret_value())
 
-        # director_user = crud.get_user_by_username(db_session, 'Paradox')
+        # Проверка наличия пользователя с правами директора.
         director_user = user_manager.get_user_by_username(api_settings.init_director_login)
         assert director_user.username == api_settings.init_director_login
         assert director_user.first_name == api_settings.init_director_name
@@ -48,7 +56,7 @@ class TestUser:
         assert not director_user_schema.check_password("qwerty")
         assert director_user_schema.check_password(api_settings.init_director_password.get_secret_value())
 
-        # user = crud.get_user_by_username(db_session, 'User')
+        # Проверка наличия обычного пользователя с правами посетителя.
         user = user_manager.get_user_by_username(api_settings.init_user_login)
         assert user.username == api_settings.init_user_login
         assert user.first_name == api_settings.init_user_name
@@ -60,12 +68,16 @@ class TestUser:
         assert not user_schema.check_password("qwerty")
         assert user_schema.check_password(api_settings.init_user_password.get_secret_value())
 
-        # unknown_user = crud.get_user_by_username(db_session, 'Unknown')
+        # Проверка возврата None при отсутствии искомого пользователя.
         unknown_user = user_manager.get_user_by_username('Unknown')
-        print(f"Unknown user: {unknown_user}")
+        assert unknown_user is None
 
     def test_add_user(self, db_session: Session):
-        """ Проверяет создание пользователей """
+        """
+        Проверяет создание пользователей.
+        :param db_session: Сессия для работы с базой данных.
+        :raises AssertionError:
+        """
         user_manager = UserManager(db_session)
         new_user = UserBuilder('NewUser', 'new_user@mail.ru').set_password("qwerty").build()
         assert new_user.username == 'NewUser'
@@ -81,21 +93,31 @@ class TestUser:
         assert find_new_user.status == UerStatus.ACTIVE
 
     def test_set_password(self, db_session: Session, api_settings: Settings):
-        """ Проверяет установку пользователям паролей """
+        """
+        Проверяет установку пользователям паролей.
+        :param db_session: Сессия для работы с базой данных.
+        :param api_settings: Настройки приложения.
+        :raises AssertionError:
+        """
         user_manager = UserManager(db_session)
         password = 'qwerty'
         user_model = UserBuilder("NewUser", "new_user@mail.ru").set_password(password).build()
         user_schema = schemas.UserInDB(**user_model.to_dict())
         assert user_schema.check_password(password)
 
-        password = 'Cucumber_123'
+        password = api_settings.init_director_password.get_secret_value()
         director = user_manager.get_user_schema_by_username(api_settings.init_director_login)
         assert director.check_password(password)
-        password = 'cucumber_123'
+        password = password + "_"
         assert not director.check_password(password)
 
     def test_convert_userdb_to_user(self, db_session: Session, api_settings: Settings):
-        """ Проверяет конвертацию пользователя из AlchemySQL в FastAPI модель """
+        """
+        Проверяет конвертацию пользователя из AlchemySQL в FastAPI модель.
+        :param db_session: Сессия для работы с базой данных.
+        :param api_settings: Настройки приложения.
+        :raises AssertionError:
+        """
         user_manager = UserManager(db_session)
         paradox_in_db = user_manager.get_user_schema_by_username(api_settings.init_director_login)
         paradox = paradox_in_db.to_user()
