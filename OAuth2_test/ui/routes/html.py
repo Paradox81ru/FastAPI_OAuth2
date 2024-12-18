@@ -1,6 +1,7 @@
-from typing import Annotated
 from config import templates
-from fastapi import APIRouter, Form, Request, Depends, HTTPException
+from fastapi import APIRouter, Request
+
+from config import templates
 
 router = APIRouter(
     prefix="",
@@ -9,6 +10,7 @@ router = APIRouter(
 
 @router.get("/index")
 async def main(request: Request):
+    """ Главная HTML страница. """
     return templates.TemplateResponse(
         request=request, name="index.html"
     )

@@ -1,13 +1,13 @@
 import os
 from dataclasses import dataclass
-from enum import StrEnum, IntEnum
+from enum import StrEnum
 
 import httpx
 from dotenv import load_dotenv
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
-from config import get_settings, Settings
+from config import get_settings
 
 os.environ['IS_TEST'] = 'True'
 
@@ -18,6 +18,7 @@ import pytest
 
 
 class UserType(StrEnum):
+    """ Типы пользователей. """
     ADMIN = 'Admin'
     SYSTEM = 'System'
     DIRECTOR = 'Director'
@@ -27,11 +28,13 @@ class UserType(StrEnum):
 
 @dataclass
 class UserAuth:
+    """ Модель авторизации пользователя. """
     username: str
     password: str
 
 
 class Oauth2Settings(BaseSettings):
+    """ Настройки сервера авторизации oauth2. """
     auth_host: str = "localhost"
     auth_port: int = 8001
 
@@ -60,18 +63,24 @@ class Oauth2Settings(BaseSettings):
 
 @pytest.fixture()
 def client():
+    """ Тестовый клиент. """
     return TestClient(app)
 
 
 @pytest.fixture(scope='session')
 def api_settings():
+<<<<<<< HEAD
     """ Класс настроек oauth2_test """
     return get_settings()
+=======
+    """ Класс настроек oauth2_test. """
+    return settings
+>>>>>>> oauth2_test
 
 
 @pytest.fixture(scope='session')
 def oauth2_settings():
-    """ Класс настроек oauth2 """
+    """ Класс настроек oauth2. """
     env_path = os.path.join(os.getcwd(), '..', 'oauth2', 'Auth', '.env')
     load_dotenv(env_path)
     return Oauth2Settings()
@@ -79,7 +88,11 @@ def oauth2_settings():
 
 @pytest.fixture(scope='session')
 def users_data(oauth2_settings) -> dict[UserType, UserAuth]:
-    """ Данные для авторизации пользователя (логин и пароль) """
+    """
+    Данные для авторизации пользователя (логин и пароль).
+    :param oauth2_settings: Настройки сервера авторизации oauth2.
+    :return:
+    """
     users_data = {UserType.ADMIN: UserAuth(
                       UserType.ADMIN, oauth2_settings.init_admin_password.get_secret_value()),
                   UserType.SYSTEM: UserAuth(
@@ -95,17 +108,17 @@ def users_data(oauth2_settings) -> dict[UserType, UserAuth]:
 
 @pytest.fixture(scope='session')
 def oauth_server(api_settings):
-    """ Сервер авторизации """
+    """ URL сервера авторизации. """
     return  f"http://{api_settings.auth_server_host}:{api_settings.auth_server_port}"
 
 
 def get_access_token(user_auth: UserAuth, oauth_server, scope: list[str]):
     """
-    Возвращает токен авторизации
-    :param user_auth: Логин и пароль пользователя
-    :param oauth_server: URL сервера авторизации
-    :param scope: scope авторизации
-    :return:
+    Возвращает токен авторизации.
+    :param user_auth: Логин и пароль пользователя.
+    :param oauth_server: URL сервера авторизации.
+    :param scope: Список scope авторизации.
+    :return: Токен доступа.
     """
     api_url = f"{oauth_server}/api/oauth/token"
     request_data = {'username': user_auth.username, 'password': user_auth.password, 'scope': " ".join(scope)}

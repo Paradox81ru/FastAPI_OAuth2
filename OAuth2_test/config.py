@@ -15,7 +15,7 @@ templates = Jinja2Templates(directory="ui/jinja2")
 
 
 def get_logger(logger_name: str) -> logging.Logger:
-    """ Возвращает логгер """
+    """ Возвращает логгер. """
     logger = logging.getLogger(logger_name)
 
     create_logs_dir()
@@ -29,7 +29,7 @@ def get_logger(logger_name: str) -> logging.Logger:
     return logger
 
 def create_logs_dir():
-    """ Проверяет наличие каталогов с логами, и если нет, создаёт ешл """
+    """ Проверяет наличие каталогов с логами, и если нет, создаёт его. """
     parent_dir = Path(LOGGER_FILENAME).parent
     if not parent_dir.exists():
         parent_dir.mkdir()
@@ -43,6 +43,7 @@ def create_logs_dir():
 
 
 class Settings(BaseSettings):
+    """ Класс настроек. """
     auth_test_host: str = "localhost"
     auth_test_port: int = 8000
 
@@ -52,7 +53,7 @@ class Settings(BaseSettings):
 
 # @lru_cache
 def get_settings():
-    """ Возвращает класс настроек """
+    """ Возвращает класс настроек. """
     env_path = os.path.join(os.getcwd(), 'tests', '.env') if ('IS_TEST' in os.environ and os.environ['IS_TEST'] == 'True') \
                 else os.path.join(os.getcwd(),'fastapi_site', '.env')
     load_dotenv(env_path) 
