@@ -5,7 +5,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.templating import Jinja2Templates
-from passlib.context import CryptContext
 from pwdlib import PasswordHash
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
@@ -21,7 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 # Корневой каталог проекта
 root_path = Path(__file__).resolve().parents[0]
 
-LOGGER_FILENAME = Path(root_path, 'logs','OAuth2.log' )
+LOGGER_FILENAME = Path(root_path, 'logs', 'OAuth2.log')
 templates = Jinja2Templates(directory="ui/jinja2")
 
 
@@ -103,7 +102,8 @@ def get_pwd_context():
 # @lru_cache
 def get_settings():
     """ Возвращает класс настроек приложения. """
-    env_path = os.path.join(os.getcwd(), 'tests', '.env') if ('IS_TEST' in os.environ and os.environ['IS_TEST'] == 'True') \
-                else os.path.join(os.getcwd(),'Auth', '.env')
+    env_path = os.path.join(os.getcwd(), 'tests', '.env') \
+        if ('IS_TEST' in os.environ and os.environ['IS_TEST'] == 'True') \
+        else os.path.join(os.getcwd(), 'Auth', '.env')
     load_dotenv(env_path) 
     return Settings()

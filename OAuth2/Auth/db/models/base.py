@@ -1,12 +1,7 @@
-from contextlib import contextmanager
 from copy import copy
-from typing import Container
-from sqlalchemy.orm import DeclarativeBase, Session
-from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy.orm import AttributeState
-from sqlalchemy.inspection import inspect
 
-from Auth.db.db_connection import engine
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import DeclarativeBase, Session
 
 
 class Base(DeclarativeBase):

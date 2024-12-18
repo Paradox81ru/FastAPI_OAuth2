@@ -27,7 +27,7 @@ class UserManager(BaseManager):
     def get_user_by_jwt_token(self, jti: UUID | str) -> User:
         """ Возвращает пользователя по JTI токена. """
         jti = UUID(jti) if isinstance(jti, str) else jti
-        return cast(User, self._db.query(User).join(User.jwt_tokens).filter( JWTToken.jti == jti).one())
+        return cast(User, self._db.query(User).join(User.jwt_tokens).filter(JWTToken.jti == jti).one())
         # return db.query(User).filter(User.jwt_tokens.contains(
         #     db.query(JWTToken).filter(JWTToken.jti == jti))).first()
 

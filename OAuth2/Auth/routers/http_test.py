@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Security
 
 from Auth.dependencies import get_current_user_and_scope, check_role, check_scope, is_auth, is_not_auth
-from Auth.schemas import User, AnonymUser
+from Auth.schemas import User
 from Auth.schemas import UserRoles
 
 router = APIRouter(

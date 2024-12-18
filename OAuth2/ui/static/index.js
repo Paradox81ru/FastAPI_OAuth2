@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Запрос полeчения токенов.
+     * Запрос получения токенов.
      */
     function authorizationRequest() {
         const api = "/api/oauth/token";
@@ -86,23 +86,22 @@ document.addEventListener('DOMContentLoaded', function() {
      * @param {Object} data 
      */
     function successfulResponse(data) {
-        hideAllertDanger();
+        hideAlertDanger();
         fillTokenFields(data['access_token'], data['refresh_token'])
     }
  
 
     /**
-     * Ошибка при ответе от срвера.
+     * Ошибка при ответе от сервера.
      * @param {String} statusText Статус ответа.
      * @param {*} response Ответ в виде Promise.
      */
     function errorResponse(statusText, statusCode, response) {
         clearTokenFields();
         if ([400, 401].indexOf(statusCode) != -1)
-            response.then(responsen_json => {
-                showAlertDanger(`Error: ${statusText}. ${responsen_json['detail']}`);
+            response.then(response_json => {
+                showAlertDanger(`Error: ${statusText}. ${response_json['detail']}`);
         });
-            // showAlertDanger(`Error: ${statusText} ${responsen['detail']}`);
         else {
             showAlertDanger(`Error: ${statusCode} - ${statusText}`);
         }
@@ -128,8 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /**
-     * Отображет сообшение об ошибке.
-     * @param {String} msg Сообшение об ошибке.
+     * Отображает сообщение об ошибке.
+     * @param {String} msg Сообщение об ошибке.
      */
     function showAlertDanger(msg) {
         alertDanger.textContent = msg;
@@ -138,9 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Скрывает сообшение об ошибке.
+     * Скрывает сообщение об ошибке.
      */
-    function hideAllertDanger() {
+    function hideAlertDanger() {
         if (!alertDanger.classList.contains(HTML_CLASS_HIDDEN)) {
             alertDanger.classList.add(HTML_CLASS_HIDDEN);
             alertDanger.textContent = "";

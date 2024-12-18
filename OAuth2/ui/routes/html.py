@@ -1,5 +1,6 @@
+from fastapi import APIRouter, Request
+
 from config import templates
-from fastapi import APIRouter, Form, Request, Depends, HTTPException
 
 router = APIRouter(
     prefix="",

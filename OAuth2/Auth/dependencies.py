@@ -1,17 +1,17 @@
 import jwt
-from fastapi import Depends, Form
+from fastapi import Depends
 from fastapi.security import SecurityScopes
 from jwt.exceptions import ExpiredSignatureError
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
 
-from config import get_settings, oauth2_scheme
 from Auth.db.db_connection import db_session
+from Auth.db.models.jwt_token_manager import JWTTokenManager
+from Auth.db.models.user_manager import UserManager
 from Auth.exceptions import AuthenticateException
 from Auth.schemas import AnonymUser, UerStatus, User, JWTTokenType, UserRoles, BaseUser
-from Auth.db.models.user_manager import UserManager
-from Auth.db.models.jwt_token_manager import JWTTokenManager
+from config import get_settings, oauth2_scheme
 
 settings = get_settings()
 
@@ -39,7 +39,7 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
     try:
         payload: dict = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'])
         if payload.get('type') != jwt_token_type:
-             raise AuthenticateException("The JWT token is damaged")
+            raise AuthenticateException("The JWT token is damaged")
         jti: str = payload.get('jti')
         # Проверка, есть ли этот токен в базе.
         if not jwt_token_manager.has_jwt_token(jti):
@@ -49,7 +49,7 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
         if payload.get('sub') is None:
             raise AuthenticateException("Could not validate credentials")
         return payload
-    except ExpiredSignatureError as err:
+    except ExpiredSignatureError:
         # Если токен просрочен, то он всё равно раскодируется, чтобы найти JTI токена,    
         payload = jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=['HS256'],
                              options={"verify_signature": False})

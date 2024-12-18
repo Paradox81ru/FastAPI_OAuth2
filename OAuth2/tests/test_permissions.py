@@ -1,9 +1,7 @@
 import pytest
-from fastapi import Response
 from fastapi.testclient import TestClient
 
 from Auth.schemas import UserRoles
-from config import Settings
 from tests.conftest import UserType, get_access_token
 
 
@@ -235,7 +233,7 @@ class TestOnlyAuthorizedUser:
         :raises AssertionError:
         """
         user_auth = users_data[UserType.USER]
-        token = get_access_token(client, user_auth,[])
+        token = get_access_token(client, user_auth, [])
         response = client.get(self.api, headers=get_headers(token))
         assert response.status_code == 200
         assert response.json() == {'status': 'ok', 'username': user_auth.username,

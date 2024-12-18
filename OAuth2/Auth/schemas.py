@@ -54,7 +54,7 @@ class UserRoles(MyEnum):
 
 
 class JWTTokenType(StrEnum):
-    """ Типы токенаов """
+    """ Типы токенов """
     ACCESS = 'access'
     REFRESH = 'refresh'
 

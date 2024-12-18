@@ -19,7 +19,7 @@ def init_users(db: Session):
     user_system = (UserBuilder('System', settings.init_system_email).role(UserRoles.system)
                    .set_password(settings.init_system_password.get_secret_value()).build())
     user_paradox = (UserBuilder(settings.init_director_login, settings.init_director_email)
-                    .name(settings.init_director_name , settings.init_director_lastname)
+                    .name(settings.init_director_name, settings.init_director_lastname)
                     .role(UserRoles.director).set_password(settings.init_director_password.get_secret_value()).build())
     user_user = (UserBuilder(settings.init_user_login, settings.init_user_email)
                  .name(settings.init_user_name, settings.init_user_lastname)

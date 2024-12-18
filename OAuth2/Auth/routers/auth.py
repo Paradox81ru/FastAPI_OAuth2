@@ -1,16 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from config import get_settings
-# from Auth.db.crud import add_jwt_token, remove_jwt_token
+from Auth.db.models.jwt_token_manager import JWTTokenManager
+from Auth.db.models.user_manager import UserManager
 from Auth.dependencies import get_db_session, validate_refresh_token, get_current_user_and_scope
 from Auth.schemas import Token, User, AnonymUser
-# from Auth.utils import authenticate_user, create_access_token, create_refresh_token
-from Auth.db.models.user_manager import UserManager
-from Auth.db.models.jwt_token_manager import JWTTokenManager
+from config import get_settings
 
 settings = get_settings()
 
@@ -60,7 +58,8 @@ async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_ses
 
 
 @router.get("/get_user", response_model=tuple[User, list] | tuple[AnonymUser, None])
-async def get_user(current_user: Annotated[tuple[User, list] | tuple[AnonymUser, None], Depends(get_current_user_and_scope)]):
+async def get_user(current_user: Annotated[tuple[User, list] | tuple[AnonymUser, None],
+                   Depends(get_current_user_and_scope)]):
     """
     Возвращает пользователя и его scope, по переданному токену доступа.
     :param current_user: Кортеж, текущий пользователь и его scope.

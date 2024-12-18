@@ -1,13 +1,11 @@
+import uuid
 from datetime import datetime, timedelta
 from typing import final
-from sqlalchemy import select, func
-from Auth.db.models.user import User
-from Auth.db.models.user_manager import UserManager
-from Auth.db.models.jwt_token import JWTToken
-from Auth.db.models.jwt_token_manager import JWTTokenManager, settings
-from sqlalchemy.orm import Session
-import uuid
 
+from sqlalchemy.orm import Session
+
+from Auth.db.models.jwt_token_manager import JWTTokenManager, settings
+from Auth.db.models.user_manager import UserManager
 from config import Settings
 from tests.conftest import db_session
 

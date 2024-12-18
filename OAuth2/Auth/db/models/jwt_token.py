@@ -1,7 +1,9 @@
 from datetime import datetime
-from Auth.db.models import Base, User
-from sqlalchemy import String, SMALLINT, UUID, ForeignKey, DATETIME, select, func
+
+from sqlalchemy import UUID, ForeignKey, DATETIME
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from Auth.db.models import Base, User
 
 
 class JWTToken(Base):

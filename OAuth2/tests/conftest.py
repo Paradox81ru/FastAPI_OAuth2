@@ -2,8 +2,6 @@ import os
 from dataclasses import dataclass
 from enum import StrEnum
 
-import httpx
-
 os.environ['IS_TEST'] = 'True'
 
 from fastapi.testclient import TestClient
@@ -77,6 +75,7 @@ def setup():
 
     # и с помощью alembic инициируется новая тестовая база.
     alembic_cfg = alembic.config.Config('alembic.ini')
+    # noinspection PyUnresolvedReferences
     alembic.command.upgrade(alembic_cfg, 'head')
     yield
    
