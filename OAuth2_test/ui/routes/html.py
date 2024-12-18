@@ -9,6 +9,7 @@ router = APIRouter(
 
 @router.get("/index")
 async def main(request: Request):
+    """ Главная HTML страница. """
     return templates.TemplateResponse(
         request=request, name="index.html"
     )

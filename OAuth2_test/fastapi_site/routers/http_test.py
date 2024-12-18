@@ -25,7 +25,7 @@ router = APIRouter(
 
 @router.get("/get_user", response_model=tuple[User, list] | tuple [AnonymUser, list])
 async def get_user(request: Request):
-    """ Возвращает текущего пользователя и его scope """
+    """ Возвращает текущего пользователя и его scope. """
     user = request.user
     scopes = request.auth.scopes
     return user, scopes
@@ -33,7 +33,7 @@ async def get_user(request: Request):
 
 @router.get("/scope/me", dependencies=[Security(check_scope, scopes=['me'])])
 async def get_user_scope_me(request: Request):
-    """ Возвращает текущего пользователя, если при авторизации был указан scope 'me' """
+    """ Возвращает текущего пользователя, если при авторизации был указан scope 'me'. """
     user = request.user
     scopes = request.auth.scopes
     return  {"status": "ok", "username": user.username, "role": user.get_role(), "scopes": scopes }
@@ -41,7 +41,7 @@ async def get_user_scope_me(request: Request):
 
 @router.get("/scope/me_items", dependencies=[Security(check_scope, scopes=['me', 'items'])])
 async def get_user_scopes_me_and_items(request: Request):
-    """ Возвращает текущего пользователя, только если при авторизации были указаны scope 'me' и 'items' """
+    """ Возвращает текущего пользователя, только если при авторизации были указаны scope 'me' и 'items'. """
     user = request.user
     scopes = request.auth.scopes
     return  {"status": "ok", "username": user.username, "role": user.get_role(), "scopes": scopes}
@@ -49,39 +49,39 @@ async def get_user_scopes_me_and_items(request: Request):
 
 @router.get("/only_admin", dependencies=[Depends(check_role([UserRoles.admin]))])
 async def get_only_admin(request: Request):
-    """ Возвращает текущего пользователя, только если он имеет роль администратора """
+    """ Возвращает текущего пользователя, только если он имеет роль администратора. """
     user = request.user
     return {"status": "ok", "username": user.username, "role": user.get_role()}
 
 
 @router.get("/only_director", dependencies=[Depends(check_role([UserRoles.director]))])
 async def get_only_director(request: Request):
-    """ Возвращает текущего пользователя, только если он имеет роль директора """
+    """ Возвращает текущего пользователя, только если он имеет роль директора. """
     user = request.user
     return {"status": "ok", "username": user.username, "role": user.get_role()}
 
 
 @router.get("/only_admin_or_director", dependencies=[Depends(check_role([UserRoles.admin, UserRoles.director]))])
 async def get_only_admin_or_director(request: Request):
-    """ Возвращает текущего пользователя, только если он имеет роль администратора или директора """
+    """ Возвращает текущего пользователя, только если он имеет роль администратора или директора. """
     user = request.user
     return {"status": "ok", "username": user.username, "role": user.get_role()}
 
 @router.get("/only_user", dependencies=[Depends(check_role([UserRoles.visitor]))])
 async def get_only_user(request: Request):
-    """ Возвращает текущего пользователя, только если он имеет роль посетителя """
+    """ Возвращает текущего пользователя, только если он имеет роль посетителя. """
     user = request.user
     return {"status": "ok", "username": user.username, "role": user.get_role()}
 
 @router.get("/only_authorized_user", dependencies=[Depends(is_auth)])
 async def get_authorized_user(request: Request):
-    """ Возвращает текущего пользователя, только если он авторизован """
+    """ Возвращает текущего пользователя, только если он авторизован. """
     user = request.user
     return {"status": "ok", "username": user.username,  "role": user.get_role()}
 
 
 @router.get("/only_anonym_user", dependencies=[Depends(is_anonym_user)])
 async def get_not_authorized_user(request: Request):
-    """ Возвращает анонимного пользователя, только если на сайте нет авторизации """
+    """ Возвращает анонимного пользователя, только если на сайте нет авторизации. """
     user = request.user
     return {"status": "ok", "username": user.username,  "role": user.get_role()}

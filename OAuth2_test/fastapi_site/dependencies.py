@@ -11,10 +11,10 @@ from fastapi_site.utils import get_authorization_scheme_param
 
 def check_scope(request: Request, security_scopes: SecurityScopes):
     """
-    Проверяет scopes
-    :param request: запрос
-    :param security_scopes: scope для проверки
-    :raises AuthenticateException: Не достаточно прав
+    Проверяет scopes.
+    :param request: Запрос от сервера.
+    :param security_scopes: Список scope для проверки.
+    :raises AuthenticateException: Не достаточно прав.
     """
     authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' if security_scopes.scopes else "Bearer"
     if len(security_scopes.scopes) == 0:
@@ -27,10 +27,10 @@ def check_scope(request: Request, security_scopes: SecurityScopes):
 
 def check_role(allowed_roles: tuple[str, ...] | list[str] | list[UserRoles]):
     """
-    Проверяет роль пользователя
-    :param allowed_roles: роли для проверки
+    Проверяет роль пользователя.
+    :param allowed_roles: Список ролей для проверки.
     :return:
-    :raises AuthenticateException: не достаточно прав
+    :raises AuthenticateException: Не достаточно прав.
     """
     def _check_role(request: Request):
         user_role = request.user.role
@@ -42,9 +42,9 @@ def check_role(allowed_roles: tuple[str, ...] | list[str] | list[UserRoles]):
 
 def is_auth(request: Request):
     """
-    Проверят на авторизованного пользователя
-    :param request: запрос
-    :raises AuthenticateException: не авторизован
+    Проверят на авторизованного пользователя.
+    :param request: Запрос от сервера.
+    :raises AuthenticateException: Не авторизован.
     """
     user = request.user
     if not isinstance(user, User):
@@ -53,9 +53,9 @@ def is_auth(request: Request):
 
 def is_anonym_user(request: Request):
     """
-    Проверят на неавторизованного (анонимного) пользователя
-    :param request: запрос
-    :raises AuthenticateException: пользователь уже авторизован
+    Проверят на неавторизованного (анонимного) пользователя.
+    :param request: Запрос от сервера.
+    :raises AuthenticateException: Пользователь уже авторизован.
     """
     user = request.user
     if not isinstance(user, AnonymUser):
