@@ -9,7 +9,10 @@ settings = get_settings()
 
 
 def init_users(db: Session):
-    """ Добавление пользователей при первой инициализации базы данных """
+    """
+    Добавление пользователей при первой инициализации базы данных
+    :param db: Сессия для работы с базой данных.
+    """
     user_manager = UserManager(db)
     user_admin = (UserBuilder('Admin', settings.init_admin_email).role(UserRoles.admin)
                   .set_password(settings.init_admin_password.get_secret_value()).build())

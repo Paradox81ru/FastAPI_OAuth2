@@ -20,6 +20,7 @@ settings = get_settings()
 
 
 class UserType(StrEnum):
+    """ Типы пользователей. """
     ADMIN = 'Admin'
     SYSTEM = 'System'
     DIRECTOR = 'Director'
@@ -29,17 +30,18 @@ class UserType(StrEnum):
 
 @dataclass
 class UserAuth:
+    """ Модель авторизации пользователя. """
     username: str
     password: str
 
 
 def get_access_token(client: TestClient, user_auth: UserAuth, scope: list[str]):
     """
-    Возвращает токен авторизации
-    :param client: тестовый клиент
-    :param user_auth: Логин и пароль пользователя
-    :param scope: scope авторизации
-    :return:
+    Возвращает токен авторизации.
+    :param client: Тестовый клиент.
+    :param user_auth: Логин и пароль пользователя.
+    :param scope: Список scope при авторизации.
+    :return: Токен доступа.
     """
     request_data = {'username': user_auth.username, 'password': user_auth.password, 'scope': " ".join(scope)}
     response = client.post("/api/oauth/token", data=request_data)
@@ -48,7 +50,11 @@ def get_access_token(client: TestClient, user_auth: UserAuth, scope: list[str]):
 
 @pytest.fixture(scope='session')
 def users_data(api_settings) -> dict[UserType, UserAuth]:
-    """ Данные для авторизации пользователя (логин и пароль) """
+    """
+    Данные для авторизации пользователя (логин и пароль).
+    :param api_settings: Настройки приложения.
+    :return:
+    """
     users_data = {UserType.ADMIN: UserAuth(
                       UserType.ADMIN, api_settings.init_admin_password.get_secret_value()),
                   UserType.SYSTEM: UserAuth(
@@ -64,27 +70,31 @@ def users_data(api_settings) -> dict[UserType, UserAuth]:
 
 @pytest.fixture(autouse=True, scope='session')
 def setup():
+    """ Инициализация перед началом тестов. """
     # Перед началом теста тестовая база удаляется,
     if os.path.exists('db-test.sqlite3'):
         os.remove('db-test.sqlite3')
 
-    alembic_cfg = alembic.config.Config('alembic.ini')
     # и с помощью alembic инициируется новая тестовая база.
+    alembic_cfg = alembic.config.Config('alembic.ini')
     alembic.command.upgrade(alembic_cfg, 'head')
     yield
    
    
 @pytest.fixture()
 def db_session():
+    """ Сессия для работы с базой данных. """
     yield session
     session.close()
 
 
 @pytest.fixture()
 def client():
+    """ Тестовый клиент. """
     return TestClient(app)
 
 
 @pytest.fixture(scope='session')
 def api_settings():
+    """ Настройки приложения. """
     return settings

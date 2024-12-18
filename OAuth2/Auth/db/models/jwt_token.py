@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class JWTToken(Base):
-    """ JWT токены """
+    """ JWT токены. """
     __tablename__ = "accounts_jwt_token"
 
     jti: Mapped[hex] = mapped_column(UUID, primary_key=True)

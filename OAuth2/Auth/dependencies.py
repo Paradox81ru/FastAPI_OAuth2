@@ -26,11 +26,11 @@ def get_db_session():
 
 def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) -> dict | None:
     """
-    Проверят валидность токена, и если он валидный, то возвращает его содержимое
-    :param session: сессия базы данных
-    :param token: токен
-    :param jwt_token_type: тип токена (доступа или обновления)
-    :return: содержимое токена
+    Проверят валидность токена, и если он валидный, то возвращает его содержимое.
+    :param session: Сессия для работы с базой данных.
+    :param token: Токен.
+    :param jwt_token_type: Тип токена (доступа или обновления).
+    :return: Раскодированное содержимое токена.
     """
 
     jwt_token_manager = JWTTokenManager(session)
@@ -63,10 +63,10 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
 async def validate_access_token(session: Annotated[Session, Depends(get_db_session)],
                                 token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     """
-    Проверяет валидность токена доступа
-    :param session: сессия базы данных
-    :param token: токен доступа
-    :return:
+    Проверяет валидность токена доступа.
+    :param session: Сессия для работы с базой данных.
+    :param token: Токен доступа.
+    :return: Раскодированное содержимое токена.
     """
     return _validate_token(session, token, JWTTokenType.ACCESS)
 
@@ -75,9 +75,9 @@ async def validate_refresh_token(session: Annotated[Session, Depends(get_db_sess
                                  token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     """
     Проверяет валидность токена обновления
-    :param session: сессия базы данных
-    :param token: токен обновления
-    :return:
+    :param session: Сессия для работы с базой данных.
+    :param token: Токен обновления.
+    :return: Раскодированное содержимое токена.
     """
     return _validate_token(session, token, JWTTokenType.REFRESH)
 
@@ -87,9 +87,9 @@ async def get_current_user_and_scope(session: Annotated[Session, Depends(get_db_
     """
     Возвращает пользователя по токену доступа, или анонимного пользователя,
     если токена доступа не было предоставлено вообще. И его scope при авторизации.
-    :param session: сессия базы данных
-    :param payload: содержимое токена
-    :return: Пользователя и его scope (сфера деятельности)
+    :param session: Сессия для работы с базой данных.
+    :param payload: Раскодированное содержимое токена.
+    :return: Пользователя и его scope (сфера деятельности).
     :raises AuthenticateException: Не удалось подтвердить учётные данные; Пользователь не доступен.
     """
     user_manager = UserManager(session)
@@ -107,10 +107,10 @@ async def get_current_user_and_scope(session: Annotated[Session, Depends(get_db_
 
 def check_scope(payload: Annotated[dict, Depends(validate_access_token)], security_scopes: SecurityScopes):
     """
-    Проверяет scopes
-    :param payload: содержимое токена
-    :param security_scopes: scope для проверки
-    :raises AuthenticateException: Не достаточно прав
+    Проверяет scopes.
+    :param payload: Раскодированное содержимое токена.
+    :param security_scopes: Список scope для проверки.
+    :raises AuthenticateException: Не достаточно прав.
     """
     authenticate_value = f'Bearer scope="{security_scopes.scope_str}"' if security_scopes.scopes else "Bearer"
     if len(security_scopes.scopes) == 0:
@@ -125,23 +125,23 @@ def check_scope(payload: Annotated[dict, Depends(validate_access_token)], securi
 
 def check_role(allowed_roles: tuple[str, ...] | list[str] | list[UserRoles]):
     """
-    Проверяет роль пользователя
-    :param allowed_roles: роли для проверки
-    :return:
-    :raises AuthenticateException: не достаточно прав
+    Проверяет роль пользователя.
+    :param allowed_roles: Список ролей для проверки.
+    :raises AuthenticateException: Не достаточно прав.
     """
     def _check_role(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
         user, scope = user_and_scope
         if user.role in allowed_roles:
-            return True
+            return
         raise AuthenticateException("Not enough permissions", "Bearer")
     return _check_role
 
+
 def is_auth(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
     """
-    Проверят на авторизованного пользователя
-    :param user_and_scope: текущий пользователь и его scope
-     :raises AuthenticateException: не авторизован
+    Проверят на авторизованного пользователя.
+    :param user_and_scope: Текущий пользователь и его scope
+     :raises AuthenticateException: Не авторизован.
     """
     user, scope = user_and_scope
     if isinstance(user, AnonymUser):
@@ -150,9 +150,8 @@ def is_auth(user_and_scope: Annotated[tuple[User, list], Depends(get_current_use
 
 def is_not_auth(user_and_scope: Annotated[tuple[User, list], Depends(get_current_user_and_scope)]):
     """
-    Проверят на неавторизованного пользователя
-    :param user_and_scope: текущий пользователь и его scope
-    :return:
+    Проверят на неавторизованного (анонимного) пользователя.
+    :param user_and_scope: Текущий пользователь и его scope.
     """
     user, scope = user_and_scope
     if isinstance(user, User):

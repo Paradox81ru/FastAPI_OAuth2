@@ -24,8 +24,13 @@ root_path = Path(__file__).resolve().parents[0]
 LOGGER_FILENAME = Path(root_path, 'logs','OAuth2.log' )
 templates = Jinja2Templates(directory="ui/jinja2")
 
+
 def get_logger(logger_name: str) -> logging.Logger:
-    """ Возвращает логгер """
+    """
+    Возвращает логгер
+    :param logger_name: Наименование логгера.
+    :return:
+    """
     logger = logging.getLogger(logger_name)
 
     create_logs_dir()
@@ -38,14 +43,16 @@ def get_logger(logger_name: str) -> logging.Logger:
     logger.setLevel(logging.DEBUG if is_debug_mode else logging.ERROR)
     return logger
 
+
 def create_logs_dir():
-    """ Проверяет наличие каталогов с логами, и если нет, создаёт ешл """
+    """ Проверяет наличие каталогов с логами, и если нет, создаёт его. """
     parent_dir = Path(LOGGER_FILENAME).parent
     if not parent_dir.exists():
         parent_dir.mkdir()
 
 
 class MyPwdContext(AbstractPwdContext):
+    """ Конкретный класс для управления криптографией пароля. """
     def __init__(self, pwd_context):
         self._pwd_context = pwd_context
 
@@ -57,6 +64,7 @@ class MyPwdContext(AbstractPwdContext):
 
 
 class Settings(BaseSettings):
+    """ Класс настроек приложения """
     auth_host: str = "localhost"
     auth_port: int = 8001
 
@@ -64,7 +72,6 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 5
     refresh_token_expire_minutes: int = 30
     db_connect_str: str = 'sqlite:///db.sqlite3'
-
 
     init_admin_email: str = 'admin@mail.com'
     init_system_email: str = 'system@mail.com'
@@ -84,7 +91,7 @@ class Settings(BaseSettings):
 
 
 def get_pwd_context():
-    """ Возвращает класс работы с паролем """
+    """ Возвращает класс работы с паролем. """
     # pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
     # Почему то библиотека passlib не хочет работать, возможно проблема, давнее отсутствие поддержки данной библиотеки.
     pwd_context = PasswordHash.recommended()
@@ -92,9 +99,10 @@ def get_pwd_context():
     my_pwd_context = MyPwdContext(pwd_context)
     return my_pwd_context
 
+
 # @lru_cache
 def get_settings():
-    """ Возвращает класс настроек """
+    """ Возвращает класс настроек приложения. """
     env_path = os.path.join(os.getcwd(), 'tests', '.env') if ('IS_TEST' in os.environ and os.environ['IS_TEST'] == 'True') \
                 else os.path.join(os.getcwd(),'Auth', '.env')
     load_dotenv(env_path) 

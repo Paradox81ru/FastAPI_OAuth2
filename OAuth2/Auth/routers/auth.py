@@ -21,20 +21,19 @@ router = APIRouter(
 
 @router.post("/token")
 async def login_for_access_token(db_session: Annotated[Session, Depends(get_db_session)], 
-                                 form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request):
+                                 form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     """
-    Выдача токена доступа при авторизации
-    :param db_session: сессия базы данных
-    :param form_data: данные из формы логин-пароля
-    :param request:
-    :return: токен доступа
+    Выдаёт токен доступа при авторизации.
+    :param db_session: Сессия работы с базой данных.
+    :param form_data: Данные из формы логин-пароля.
+    :return: Кортеж, состоящий из токен доступа, токена обновления и тип авторизации.
+    :raises HTTPException: Неверный логин или пароль.
     """
     user_manager = UserManager(db_session)
     jwt_token_manager = JWTTokenManager(db_session)
     user = user_manager.get_authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    # print(request)
     access_token = jwt_token_manager.create_access_token(user.username, data={'scopes': form_data.scopes})
     refresh_token = jwt_token_manager.create_refresh_token(user.username, data={'scopes': form_data.scopes})
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
@@ -44,12 +43,11 @@ async def login_for_access_token(db_session: Annotated[Session, Depends(get_db_s
 async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_session)],
                                payload: Annotated[dict, Depends(validate_refresh_token)]):
     """
-    Обновление токена доступа
-    :param db_session: сессия базы данных
-    :param payload: данные из полученного
+    Обновление токена доступа.
+    :param db_session: Сессия работы с базой данных.
+    :param payload: Данные из полученного токена.
     :return:
     """
-    # scopes: Annotated[list['str'], Depends(get_scopes_expired_token)],
     jwt_token_manager = JWTTokenManager(db_session)
     jti = payload.get('jti')
     username = payload.get('sub')
@@ -64,9 +62,9 @@ async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_ses
 @router.get("/get_user", response_model=tuple[User, list] | tuple[AnonymUser, None])
 async def get_user(current_user: Annotated[tuple[User, list] | tuple[AnonymUser, None], Depends(get_current_user_and_scope)]):
     """
-    Возвращает пользователя и его scope, по переданному токену доступа
-    :param current_user:
-    :return: кортеж, пользователь и его scope
+    Возвращает пользователя и его scope, по переданному токену доступа.
+    :param current_user: Кортеж, текущий пользователь и его scope.
+    :return: Кортеж, пользователь и его scope.
     """
     return current_user
 
