@@ -1,11 +1,13 @@
 from datetime import datetime
-from Auth.db.models import Base, User
-from sqlalchemy import String, SMALLINT, UUID, ForeignKey, DATETIME, select, func
+
+from sqlalchemy import UUID, ForeignKey, DATETIME
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from Auth.db.models import Base, User
 
 
 class JWTToken(Base):
-    """ JWT токены """
+    """ JWT токены. """
     __tablename__ = "accounts_jwt_token"
 
     jti: Mapped[hex] = mapped_column(UUID, primary_key=True)

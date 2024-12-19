@@ -1,7 +1,9 @@
 from config import get_settings
 import os
 
+
 def test_settings():
+    """ Тестирует настройки приложения. """
     settings = get_settings()
     assert 'IS_TEST' in os.environ and os.environ['IS_TEST'] == 'True'
     assert settings.access_token_expire_minutes == 1

@@ -33,7 +33,7 @@ async def get_user_scope_me(request: Request):
     """ Возвращает текущего пользователя, если при авторизации был указан scope 'me'. """
     user = request.user
     scopes = request.auth.scopes
-    return  {"status": "ok", "username": user.username, "role": user.get_role(), "scopes": scopes }
+    return {"status": "ok", "username": user.username, "role": user.get_role(), "scopes": scopes}
 
 
 @router.get("/scope/me_items", dependencies=[Security(check_scope, scopes=['me', 'items'])])
@@ -64,11 +64,13 @@ async def get_only_admin_or_director(request: Request):
     user = request.user
     return {"status": "ok", "username": user.username, "role": user.get_role()}
 
+
 @router.get("/only_user", dependencies=[Depends(check_role([UserRoles.visitor]))])
 async def get_only_user(request: Request):
     """ Возвращает текущего пользователя, только если он имеет роль посетителя. """
     user = request.user
     return {"status": "ok", "username": user.username, "role": user.get_role()}
+
 
 @router.get("/only_authorized_user", dependencies=[Depends(is_auth)])
 async def get_authorized_user(request: Request):

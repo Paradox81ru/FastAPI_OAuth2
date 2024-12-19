@@ -17,6 +17,7 @@ def get_headers(token):
     """ Возвращает заголовок для авторизации по токену. """
     return {'Authorization': f"Bearer {token}"}
 
+
 class TestScopeMe:
     """ Тестирует api 'api/test/scope/me' - авторизация со scope 'me'. """
     @classmethod
@@ -283,6 +284,7 @@ class TestOnlyAnonymUser:
         :param client: Тестовый клиент.
         :raises AssertionError:
         """
+
         response = client.get(self.api)
         assert response.json() == {'status': 'ok', 'username': 'Anonym',
                                    'role': UserRoles.guest.name}

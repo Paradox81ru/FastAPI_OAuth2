@@ -13,7 +13,7 @@
             Ошибка:
           </div>
         <div class="container-fluid">
-            <div class="mb-3 row">
+            <div id="tokenBlock" class="mb-3 row">
                 <form method="post"class="col">
                     <div class="mb-3 row">
                         <div class="col">
@@ -24,14 +24,18 @@
                     <button id="btn_request" type="button" class="btn btn-primary"> Получить информацию пользователя </button>
                 </form>
             </div>
-            <div class="mb-3 row">
-                <div class="col">
-                    <label for="token" class="col-2 col-form-label">Информация о пользователе:</label>
-                    <textarea id="user_info" name="token" class="form-control" rows="15"></textarea>
+            <div id="infoBlock" class="mb-3 row">
+                <div class="col user-info-col">
+                    <label for="token" class="col col-form-label text-center">Информация о пользователе:</label>
+                    <textarea id="user_info" name="token" class="form-control" rows="18"></textarea>
+                </div>
+                <div class="col rights-verification-col">
+                    <div class="mb-3 row"><label class="col-form-label text-center">Проверка прав:</label></div>
                 </div>
             </div>
         </div>
         <script src="{{ url_for('static', path='/index.js') }}"></script>
+        <script src="{{ url_for('static', path='/rights_verification.js') }}"></script>
     </div>
 </body>
 </html>
