@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.templating import Jinja2Templates
+# from passlib.context import CryptContext
 from pwdlib import PasswordHash
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
