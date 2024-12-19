@@ -5,11 +5,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const tokenField = document.getElementById("token");
     const userInfoField = document.getElementById("user_info");
     const requestBtn = document.getElementById("btn_request");
-    // Назначение обработчика кнопке щапроса информаци о пользователе
+    // Назначение обработчика кнопке запроса информации о пользователе.
     requestBtn.addEventListener("click", getUserRequest);
 
     /**
-     * Запрашивает пользователя по указанному токену
+     * Запрашивает пользователя по указанному токену.
      */
     function getUserRequest() {
         const api = "/api/test/get_user";
@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Функция обработки успешного получения токенов
-     * @param {*} data 
+     * Функция обработки успешного получения токенов.
+     * @param {*} data Данные ответа.
      */
         function successfulResponse(data) {
             hideAllertDanger();
@@ -30,9 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
      
     
         /**
-         * Ошибка при ответе от срвера
-         * @param {*} statusText 
-         * @param {*} response 
+         * Ошибка при ответе от сервера.
+         * @param {String} statusText Текст статуса ответа.
+         * @param {*} response Ответ от сервера.
          */
         function errorResponse(statusText, statusCode, response) {
             clearUserFields();
@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
     /**
-     * Отображет сообшение об ошибке
-     * @param {String} msg сообшение об ошибке
+     * Отображает сообщение об ошибке.
+     * @param {String} msg Сообшение об ошибке.
      */
         function showAlertDanger(msg) {
             alertDanger.textContent = msg;
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
     /**
-     * Скрывает сообшение об ошибке
+     * Скрывает сообшение об ошибке.
      */
     function hideAllertDanger() {
         if (!alertDanger.classList.contains(HTML_CLASS_HIDDEN)) {
@@ -66,16 +66,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Заполняет поле пользователя
-     * @param {*} response ответ от сервера
+     * Заполняет поле пользователя.
+     * @param {*} response Ответ от сервера.
      */
     function fillUserFields(response){
         userInfoField.value = convertResponseToUser(response);
     }
 
     /**
-     * Преобразует ответ в данные о пользователе
-     * @param {*} response 
+     * Преобразует ответ в данные о пользователе.
+     * @param {*} response Ответ от сервера.
      * @returns 
      */
         function convertResponseToUser(response) {
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
     /**
-    * Очищает поле пользователя
+    * Очищает поле пользователя.
     */
     function clearUserFields() {
         userInfoField.value = "";
@@ -99,9 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Проверка на пустой объект
- * @param obj
- * @returns {boolean}
+ * Проверка на пустой объект.
+ * @param obj Объект для проверки.
+ * @returns {boolean} Является ли объект пустым.
  */
 function isObjectEmpty(obj) {
     for (let key in obj)
@@ -111,13 +111,13 @@ function isObjectEmpty(obj) {
 }
 
 /**
- * API запрос
- * @param {String method} метод запроса
- * @param {String} api эндпоинт
- * @param {function} successCallback функция обратного вызова при успешном ответе
- * @param {function} failedStatusCallback функция обратного вызова при ошибке ответа
- * @param {{}} [headers={}] заголовки запроса
- * @param {{}} [data={}] данные запроса
+ * API запрос.
+ * @param {String} Тип запроса (GET | POST).
+ * @param {String} api Эндпоинт.
+ * @param {function} successCallback Функция обратного вызова при успешном ответе.
+ * @param {function} failedStatusCallback Функция обратного вызова при ошибке ответа.
+ * @param {{}} [headers={}] Заголовки запроса.
+ * @param {{}} [data={}] Данные запроса.
  */
 function apiRequest(method, host, api, successCallback, failedStatusCallback, headers={}, data={}) {
     const url=`${host}${api}`;
@@ -130,7 +130,7 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
         method: method,
     };
 
-    // Если переданы доанные формы,
+    // Если переданы данные формы,
     if (data instanceof FormData) {
         delete (options.headers);
         // то эту форму передает в тело запроса.
@@ -153,12 +153,13 @@ function apiRequest(method, host, api, successCallback, failedStatusCallback, he
         successCallback(data);
     })
     .catch(error => {
-        // return error.resopnse.json
        failedStatusCallback(error.message, error.statusCode, error.response)
     })
 }
 
-
+/**
+ * Собственное исключение ошибки статуса ответа.
+ */
 class StatusError extends Error {
     constructor(message, statusCode, response) {
         super(message);
