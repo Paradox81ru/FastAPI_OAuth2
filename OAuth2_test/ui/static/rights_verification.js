@@ -10,7 +10,14 @@ class RightsVerification {
         /** @param {HTMLElement} Блок в котором должны быть созданы кнопки. */
         this.block = block
         /** @param {Array} Список всех эндпоинтов проверки прав. */
-        this.api_list = ["scope/me", "scope/me_items", "only_admin", "only_director", "only_admin_or_director", "only_user", "only_authorized_user", "only_anonym_user"];
+        this.api_list = {"scope/me": "Указан scope 'me'", 
+            "scope/me_items": "Указаны scope 'me' и 'items'", 
+            "only_admin": "Имеет роль администратора", 
+            "only_director": "Имеет роль директора", 
+            "only_admin_or_director": "Имеет роль администратора или директора", 
+            "only_user": "Имеет роль посетителя", 
+            "only_authorized_user": "Пользователь авторизован", 
+            "only_anonym_user": "Пользователь не авторизован"};
         /** @param {Object} Словарь всех значков с ключём API. */
         this.badgeList = {};
     }
@@ -28,8 +35,8 @@ class RightsVerification {
      * Добавляет строки с кнопками.
      */
     addButtonRows() {
-        for (let api of this.api_list)
-            this.block.appendChild(this.createRow(api));
+        for (let [api, tooltip] of Object.entries(this.api_list))
+            this.block.appendChild(this.createRow(api, tooltip));
     }
 
     /**
@@ -130,18 +137,19 @@ class RightsVerification {
      * Скрывает все значки.
      */
     hideAllBadge() {
-        for (let api of this.api_list)
+        for (let api of Object.keys(this.api_list))
             this.setBadgeHide(api);
     }
 
     /**
      * Создаёт строку проверки права.
      * @param {String} api API по которой будет проверятся право.
+     * @param {String} tooltip Описание для кнопки.
      * @returns 
      */
-    createRow(api) {
+    createRow(api, tooltip) {
         let div = this.createHTMLElement('div', ['mb-3', 'row'])
-        div.appendChild(this.createButton(api));
+        div.appendChild(this.createButton(api, tooltip));
         let badge = this.createSpanBadge();
         div.appendChild(badge);
         // Для дальнейшего урпавления значками, они все сохраняются в объект с ключём API.
@@ -153,11 +161,12 @@ class RightsVerification {
      * Создёет кнопку.
      * @param {String} btnName Текст кнопки.
      * @param {String} api API к которой относиться кнопка.
+     * @param {String} tooltip Подсказка.
      * @returns {HTMLElement}
      */
-    createButton(api) {
+    createButton(api, tooltip) {
         let classList = ['col-3', 'btn', 'btn-secondary'];
-        let attrs = {type: 'button', 'data-api': api};
+        let attrs = {type: 'button', 'data-api': api, title: tooltip};
         return this.createHTMLElement('button', classList, attrs, api.replace(/[\/_]/g, ' '));
     }
 

@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
     rightsVerification.init(checkRightRequest);
     // Назначение обработчика кнопке запроса информаци о пользователе.
     requestBtn.addEventListener("click", getUserRequest);
+    tokenField.addEventListener('keypress', (ev) => {
+        if (ev.key == "Enter") {
+            ev.preventDefault();
+            requestBtn.click();
+        }
+    })
 
     /**
      * Запрашивает пользователя по указанному токену.
