@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnRequestTokens.addEventListener("click", requestTokenHandler);
     btnTokenRefresh.addEventListener('click', requestRefreshTokenHandler);
+    formAuth.addEventListener('keypress', (ev) => {
+        if (ev.key == "Enter") {
+            ev.preventDefault();
+            btnRequestTokens.click();
+        }
+    })
 
     /**
      * Обработчик кнопки запроса токенов.
