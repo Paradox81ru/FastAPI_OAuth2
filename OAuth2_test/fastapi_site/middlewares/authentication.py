@@ -1,3 +1,5 @@
+import json
+
 import httpx
 from fastapi.requests import HTTPConnection
 from starlette.authentication import (AuthCredentials, AuthenticationBackend, AuthenticationError, BaseUser,
@@ -43,11 +45,15 @@ class JWTTokenAuthBackend(AuthenticationBackend):
         """
         api_url = f"{self._auth_server}/api/oauth/get_user"
         async with httpx.AsyncClient() as client:
-            response = await client.get(api_url, headers={"Authorization": bearer_authorization})
+            try:
+                response = await client.get(api_url, headers={"Authorization": bearer_authorization})
+            except httpx.ConnectError:
+                raise AuthenticationError("The OAuth2 authorization server is unavailable.")
             if response.status_code == 200:
                 user, scopes = response.json()
                 return User(**user), scopes
             if response.status_code == 401:
                 error_msg = response.json()['detail']
                 raise AuthenticationError(error_msg)
-            raise HTTPException(response.status_code, response.json()['detail'])
+            error_msg = f"Status code {response.status_code}; response.json()['detail']"
+            raise AuthenticationError(error_msg)
