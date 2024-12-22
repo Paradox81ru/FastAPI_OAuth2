@@ -4,6 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PIP_ROOT_USER_ACTION=ignore
 
+# Секретный ключ для шифрования и дешифрования токена.
+# ENV SECRET_KEY="11dcfbb19316b6104037b2ec8d6d0179b89f55a93da4594e4971d96df5feae21"
 # Время жизни токена доступа.
 # ENV ACCESS_TOKEN_EXPIRE_MINUTES=10
 # Время жизни токена обновления.

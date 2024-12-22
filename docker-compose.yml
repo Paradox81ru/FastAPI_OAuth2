@@ -6,6 +6,8 @@ services:
     ports:
       - 8001:8001
     environment:
+      # Секретный ключ для шифрования и дешифрования токена.
+      SECRET_KEY: "11dcfbb19316b6104037b2ec8d6d0179b89f55a93da4594e4971d96df5feae21"
       # Время жизни токена доступа.
       ACCESS_TOKEN_EXPIRE_MINUTES: 10
       # Время жизни токена обновления.
