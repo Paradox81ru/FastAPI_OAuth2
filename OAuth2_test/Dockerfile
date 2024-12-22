@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_ROOT_USER_ACTION=ignore
 
 # Хост микросервиса авторизации.
-# ENV AUTH_SERVER_HOST="localhost"
+# ENV AUTH_SERVER_HOST="oauth2"
 # Порт микросервиса авторизации.
 # ENV AUTH_SERVER_PORT=8001
 
