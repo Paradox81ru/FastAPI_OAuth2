@@ -53,7 +53,7 @@ async def refresh_access_token(db_session: Annotated[Session, Depends(get_db_ses
 
     access_token = jwt_token_manager.create_access_token(username, data={'scopes': scopes})
     refresh_token = jwt_token_manager.create_refresh_token(username, data={'scopes': scopes})
-    # Из базы удаляется только токен доступа, а предыдущий токен обновления пока что остаётся в базе. Поэтому
+    # Из базы удаляется только токен обновления, а токен доступа пока что остаётся в базе. Поэтому
     # далее нужна периодическая задача по удалению всех просроченных токенов из базы данных.
     jwt_token_manager.remove_jwt_token(jti)
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
