@@ -31,6 +31,7 @@ def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) 
     :param token: Токен.
     :param jwt_token_type: Тип токена (доступа или обновления).
     :return: Раскодированное содержимое токена.
+    :raises AuthenticateException:
     """
 
     jwt_token_manager = JWTTokenManager(session)
@@ -67,6 +68,7 @@ async def validate_access_token(session: Annotated[Session, Depends(get_db_sessi
     :param session: Сессия для работы с базой данных.
     :param token: Токен доступа.
     :return: Раскодированное содержимое токена.
+    :raises AuthenticateException:
     """
     return _validate_token(session, token, JWTTokenType.ACCESS)
 
@@ -78,6 +80,7 @@ async def validate_refresh_token(session: Annotated[Session, Depends(get_db_sess
     :param session: Сессия для работы с базой данных.
     :param token: Токен обновления.
     :return: Раскодированное содержимое токена.
+    :raises AuthenticateException:
     """
     return _validate_token(session, token, JWTTokenType.REFRESH)
 
