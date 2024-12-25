@@ -24,7 +24,8 @@ MarkupSafe
 mdurl
 orjson
 packaging
-passlib
+passlib[argon2, bcrypt]
+pwdlib[argon2]
 pluggy
 pydantic
 pydantic-extra-types

@@ -1,26 +1,26 @@
+import uuid
 from datetime import datetime, timedelta
 from typing import final
-from sqlalchemy import select, func
-from Auth.db.models.user import User
-from Auth.db.models.user_manager import UserManager
-from Auth.db.models.jwt_token import JWTToken
-from Auth.db.models.jwt_token_manager import JWTTokenManager
-from sqlalchemy.orm import Session
-import uuid
 
+from sqlalchemy.orm import Session
+
+from Auth.db.models.jwt_token_manager import JWTTokenManager, settings
+from Auth.db.models.user_manager import UserManager
+from config import Settings
 from tests.conftest import db_session
 
 
 class TestJwtToken:
-
+    """ Тестирует работу с JWT токенами. """
     @classmethod
     def _add_jwt_token(cls, db_session: Session, lifetime: int, username: str):
         """
-        Добавляет данные о JWT токене
-        :param db_session: сессия для работы с БД
-        :param lifetime: время истечения срока токена в минутах
-        :param username: имя пользователя, на которого выписывается токен
-        :return : уникальный UUID код токена
+        Добавляет данные о JWT токене.
+        :param db_session: Сессия для работы с БД.
+        :param lifetime: Время истечения срока токена в минутах.
+        :param username: Имя пользователя, на которого выписывается токен.
+        :return : Уникальный UUID код токена.
+        :raises AssertionError:
         """
         jwt_token_manger = JWTTokenManager(db_session)
         jti = uuid.uuid4()
@@ -29,11 +29,16 @@ class TestJwtToken:
         assert jwt_token_manger.has_jwt_token(jti)
         return jti
 
-    def test_jwt_token(self, db_session: Session):
-        """ Тестирует создание, поиск и удаление JWT токенов """
+    def test_jwt_token(self, db_session: Session, api_settings: Settings):
+        """
+        Тестирует создание, поиск и удаление JWT токенов.
+        :param db_session:  Сессия для работы с БД.
+        :param api_settings: Настройки приложения.
+        :raises AssertionError:
+        """
         jwt_token_manager = JWTTokenManager(db_session)
         user_manager = UserManager(db_session)
-        username: final = 'User'
+        username: final = api_settings.init_user_login
 
         jti = uuid.uuid4()
         assert not jwt_token_manager.has_jwt_token(jti)
@@ -55,11 +60,15 @@ class TestJwtToken:
         user = user_manager.get_user_by_username(username)
         assert len(user.jwt_tokens) == 0
 
-
-    def test_remove_expire_tokens(self, db_session: Session):
-        """ Тестирует удаление просроченных JWT токенов """
+    def test_remove_expire_tokens(self, db_session: Session, api_settings: Settings):
+        """
+        Тестирует удаление просроченных JWT токенов.
+        :param db_session:  Сессия для работы с БД.
+        :param api_settings: Настройки приложения.
+        :raises AssertionError:
+        """
         jwt_token_manger = JWTTokenManager(db_session)
-        username: final = 'Paradox'
+        username: final = settings.init_director_login
 
         self._add_jwt_token(db_session, -2, username)
         self._add_jwt_token(db_session, -1, username)

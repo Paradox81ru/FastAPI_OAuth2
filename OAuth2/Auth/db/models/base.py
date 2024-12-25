@@ -1,20 +1,19 @@
-from contextlib import contextmanager
 from copy import copy
-from typing import Container
-from sqlalchemy.orm import DeclarativeBase, Session
-from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy.orm import AttributeState
-from sqlalchemy.inspection import inspect
 
-from Auth.db.db_connection import engine
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import DeclarativeBase, Session
 
 
 class Base(DeclarativeBase):
     def to_dict(self, *, exclude: list[str] = None):
+        """
+        Возвращает данные в виде словаря.
+        :param exclude: Список аттрибутов, которые не надо включать в возвращаемый словарь данных.
+        :return:
+        """
         _exclude = copy(exclude) if exclude is not None else []
         _exclude.extend(('_sa_instance_state', ))
         mapper = inspect(self)
-        # return mapper.dict
         fields = {}
         for field_name in mapper.dict:
             if field_name in _exclude:
@@ -26,8 +25,9 @@ class Base(DeclarativeBase):
         attrs = tuple(f"{field}={f'\'{value}\'' if isinstance(value, str) else value}" for field, value in self.to_dict().items())
         return f"{self.__class__.__name__}({', '.join(attrs)})"
 
+
 class BaseManager:
-    """ Менеджер (singleton) """
+    """ Менеджер (singleton). """
     _instances = {}
 
     def __new__(cls, *args, **kwargs):
