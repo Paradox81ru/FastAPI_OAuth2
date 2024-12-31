@@ -17,11 +17,11 @@ settings = get_settings()
 
 
 def get_db_session():
-    with db_session:
-        try:
-            yield db_session
-        finally:
-            db_session.close()
+    # with db_session:
+    #     try:
+    yield db_session
+        # finally:
+    db_session.close()
 
 
 def _validate_token(session: Session, token: str, jwt_token_type: JWTTokenType) -> dict | None:
