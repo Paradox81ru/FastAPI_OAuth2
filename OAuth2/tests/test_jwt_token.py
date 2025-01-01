@@ -58,6 +58,7 @@ class TestJwtToken:
 
         jwt_token_manager.remove_user_jwt_tokens(user.username)
         user = user_manager.get_user_by_username(username)
+        assert user is not None
         assert len(user.jwt_tokens) == 0
 
     def test_remove_expire_tokens(self, db_session: Session, api_settings: Settings):
